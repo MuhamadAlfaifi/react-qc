@@ -1,6 +1,6 @@
 {
   "name": "react-qc",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "React-QC simplifies the creation of reusable data fetching components by abstracting React Query hooks into intuitive component query helpers.",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "license": "MIT",
