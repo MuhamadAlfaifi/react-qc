@@ -1,1 +1,1 @@
-# init readme
+packages/lib/README.md
