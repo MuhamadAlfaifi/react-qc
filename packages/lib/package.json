@@ -3,6 +3,12 @@
   "version": "0.0.4",
   "description": "React-QC simplifies the creation of reusable data fetching components by abstracting React Query hooks into intuitive component query helpers.",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
+  "homepage": "https://github.com/MuhamadAlfaifi/react-qc",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MuhamadAlfaifi/react-qc.git",
+    "directory": "packages/lib"
+  },
   "license": "MIT",
   "files": [
     "dist",
@@ -16,8 +22,7 @@
     "watch": "tsc && vite build --watch",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "test": "vitest --watch",
-    "publish": "npm run build && npm publish"
+    "test": "vitest --watch"
   },
   "peerDependencies": {
     "@tanstack/react-query": "^4.36.1",
