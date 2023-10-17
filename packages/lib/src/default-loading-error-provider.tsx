@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 import type { 
   DefaultLoadingErrorContext, 
   DefaultLoadingErrorProviderProps, 
-} from './types';
+} from '~/types';
 
 const context = createContext<DefaultLoadingErrorContext>({
   error: ({ resetErrorBoundary }) => <div><div>an error occured!</div><button onClick={resetErrorBoundary}>resetErrorBoundary</button></div>,

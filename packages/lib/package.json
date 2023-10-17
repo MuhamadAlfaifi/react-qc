@@ -3,10 +3,10 @@
   "version": "0.0.5",
   "description": "React-QC simplifies the creation of reusable data fetching components by abstracting React Query hooks into intuitive component query helpers.",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
-  "homepage": "https://github.com/MuhamadAlfaifi/react-qc",
+  "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages/lib",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MuhamadAlfaifi/react-qc.git",
+    "url": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages/lib",
     "directory": "packages/lib"
   },
   "license": "MIT",
@@ -31,18 +31,22 @@
     "react-router-dom": "^6.17.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.1.4",
+    "@testing-library/react": "^14.0.0",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react": "^4.0.3",
+    "@vitest/browser": "^0.34.6",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vite-plugin-dts": "^3.6.0",
-    "vitest": "^0.34.6"
+    "vitest": "^0.34.6",
+    "webdriverio": "^8.18.2"
   },
   "dependencies": {
     "react-error-boundary": "^4.0.11"
