@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useDefaultLoadingError } from '~/default-loading-error-provider';
-import { QueryStatusWithPending } from '~/types';
+import { useDefaultLoadingError } from './default-loading-error-provider';
+import { QueryStatusWithPending } from './types';
 
 export function defineQueryComponent({ keyFn, queryFn, ...defaultOptions }: any) {
   function useBaseQuery({ select, ...options }: any) {

@@ -29,7 +29,12 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: [
+        'react', 
+        'react-dom', 
+        '@tanstack/react-query', 
+        'react-error-boundary',
+      ],
       output: {
         globals: {
           react: 'React',
