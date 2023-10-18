@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useDefaultLoadingError } from '~/default-loading-error-provider';
+import { QueryStatusWithPending } from '~/types';
 
-type TData<T> = T extends (...args: any[]) => infer R ? R : unknown;
-
-export function createQueryComponent({ keyFn, queryFn, ...defaultOptions }: any) {
+export function defineQueryComponent({ keyFn, queryFn, ...defaultOptions }: any) {
   function useBaseQuery({ select, ...options }: any) {
     const query = useQuery({
       queryKey: keyFn({ ...defaultOptions, ...options }),
@@ -24,18 +23,20 @@ export function createQueryComponent({ keyFn, queryFn, ...defaultOptions }: any)
     return { data, query };
   }
 
-  function Component(props: any) {
+  function Component({ hasLoading, loading, ...props }: any) {
     const { loading: defaultLoading } = useDefaultLoadingError();
-    const { data, query } = useBaseQuery(props);
-    
-    const hasLoading = 'hasLoading' in props ? props.hasLoading : true;
-    const loading = props.loading || defaultLoading;
+    const { data, query } = useBaseQuery({ throwOnError: true, ...props });
 
-    if (hasLoading && query.isLoading) {
-      return loading;
+    const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
+    const finalLoading = props.loading || defaultLoading;
+    
+    const status = query.status as QueryStatusWithPending;
+    
+    if (finalHasLoading && (status === 'loading' || status === 'pending')) {
+      return finalLoading;
     }
 
-    return props.render(data as TData<typeof props.select>, query);
+    return props.render(data, query);
   }
 
   return Object.assign(Component, { useQuery: useBaseQuery });

@@ -1,12 +1,9 @@
 import { expect, test } from 'vitest'
-import { createQueryComponent } from '../src/create-query-component';
 import { waitFor } from '@testing-library/react';
-import { render } from './render';
+import { render } from './shared';
+import { defineQueryComponent } from '../src/define-query';
 import { DefaultLoadingErrorProvider } from '../src/default-loading-error-provider';
-
-test('adds 1 + 2 to equal 3', () => {
-  expect(2 + 1).toBe(3)
-})
+import { Catch } from '../src/catch';
 
 test('does not fail when creating query component', () => {
   const options = {
@@ -14,11 +11,11 @@ test('does not fail when creating query component', () => {
     queryFn: () => Promise.resolve(10),
   };
 
-  createQueryComponent(options);
-});
+  defineQueryComponent(options);
+})
 
 test('passes query component props to queryFn', async () => {
-  const MyQueryComponent = createQueryComponent({
+  const MyQueryComponent = defineQueryComponent({
     keyFn: ({ myProp, variables }) => [myProp, variables],
     queryFn: ({ queryKey }) => {
       return Promise.resolve(queryKey)
@@ -45,10 +42,10 @@ test('passes query component props to queryFn', async () => {
     expect(getByTestId('my-query-component')).toHaveTextContent('["my-key",{"value1":"value1","value2":"value2"}]')
     expect(getByTestId('my-hook')).toHaveTextContent('["my-key-lajksdf",{"value1":"value1-jioajsdf","value2":"value2-joifds"}]')
   })
-});
+})
 
 test('query component shows default loading provided via DefaultLoadingErrorProvider', async () => {
-  const MyQueryComponent = createQueryComponent({
+  const MyQueryComponent = defineQueryComponent({
     keyFn: ({}) => ['random-key', {}],
     queryFn: () => {
       return new Promise(resolve => setTimeout(() => resolve(0), 300));
@@ -65,7 +62,7 @@ test('query component shows default loading provided via DefaultLoadingErrorProv
 })
 
 test('query component can override default loading element', async () => {
-  const MyQueryComponent = createQueryComponent({
+  const MyQueryComponent = defineQueryComponent({
     keyFn: ({}) => ['random-key', {}],
     queryFn: () => {
       return new Promise(resolve => setTimeout(() => resolve(0), 300));
@@ -79,4 +76,25 @@ test('query component can override default loading element', async () => {
   );
 
   expect(getByTestId('loading-state')).toHaveTextContent('loading...');
+})
+
+test('query component shows default error provided via DefaultLoadingErrorProvider', async () => {
+  const MyQueryComponent = defineQueryComponent({
+    keyFn: ({}) => ['random-key', {}],
+    queryFn: () => {
+      return Promise.reject(new Error('something went wrong!'));
+    },
+  });
+
+  const { getByTestId } = render(
+    <DefaultLoadingErrorProvider error={<div data-testid="error-state">default error!</div>}>
+      <Catch>
+        <MyQueryComponent render={_ => null} />
+      </Catch>
+    </DefaultLoadingErrorProvider>
+  );
+
+  await waitFor(() => {
+    expect(getByTestId('error-state')).toHaveTextContent('default error!')
+  })
 })

@@ -1,7 +1,7 @@
 import { DefaultLoadingErrorProvider } from 'react-qc';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import { routes } from './routes';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { routes } from './routes';
 import { client } from './api/client';
 import { Error } from './components/error';
 import { Loading } from './components/loading';
