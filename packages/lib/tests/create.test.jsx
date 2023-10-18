@@ -2,8 +2,7 @@ import { expect, test } from 'vitest'
 import { waitFor } from '@testing-library/react';
 import { render } from './shared';
 import { defineQueryComponent } from '../src/define-query';
-import { DefaultLoadingErrorProvider } from '../src/default-loading-error-provider';
-import { Catch } from '../src/catch';
+import { DefaultLoadingErrorProvider, useDefaultLoadingError } from '../src/default-loading-error-provider';
 
 test('does not fail when creating query component', () => {
   const options = {
@@ -78,23 +77,18 @@ test('query component can override default loading element', async () => {
   expect(getByTestId('loading-state')).toHaveTextContent('loading...');
 })
 
-test('query component shows default error provided via DefaultLoadingErrorProvider', async () => {
-  const MyQueryComponent = defineQueryComponent({
-    keyFn: ({}) => ['random-key', {}],
-    queryFn: () => {
-      return Promise.reject(new Error('something went wrong!'));
-    },
-  });
+test('useDefaultLoadingError read context for defaults correctly', async () => {
+  function CustomComponent() {
+    const { error } = useDefaultLoadingError();
 
-  const { getByTestId } = render(
-    <DefaultLoadingErrorProvider error={<div data-testid="error-state">default error!</div>}>
-      <Catch>
-        <MyQueryComponent render={_ => null} />
-      </Catch>
+    return error;
+  }
+
+  const { findByTestId } = render(
+    <DefaultLoadingErrorProvider error={<div data-testid="error-state">default error...</div>}>
+      <CustomComponent />
     </DefaultLoadingErrorProvider>
   );
 
-  await waitFor(() => {
-    expect(getByTestId('error-state')).toHaveTextContent('default error!')
-  })
+  expect(await findByTestId('error-state')).toHaveTextContent('default error...');
 })

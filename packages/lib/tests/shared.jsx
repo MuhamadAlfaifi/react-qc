@@ -1,16 +1,19 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render as baseRender } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 
 const client = new QueryClient();
 
 export function Providers({ children, routerPath }) {
   return (
-    <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[routerPath]}>
-        {children}
-      </MemoryRouter>
-    </QueryClientProvider>
+    <StrictMode>
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[routerPath]}>
+          {children}
+        </MemoryRouter>
+      </QueryClientProvider>
+    </StrictMode>
   );
 }
 
