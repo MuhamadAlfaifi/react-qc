@@ -1,10 +1,10 @@
-import { expect, test } from 'vitest'
 import { waitFor } from '@testing-library/react';
 import { render } from './shared';
 import { defineQueryComponent } from '../src/define-query';
 import { DefaultLoadingErrorProvider, useDefaultLoadingError } from '../src/default-loading-error-provider';
+import React from 'react';
 
-test('does not fail when creating query component', () => {
+it('does not fail when creating query component', () => {
   const options = {
     keyFn: ({ myProp = 'my-key', myProps = { value1: 'value1', value2: 'value2' } }) => [myProp, myProps],
     queryFn: () => Promise.resolve(10),
@@ -13,7 +13,7 @@ test('does not fail when creating query component', () => {
   defineQueryComponent(options);
 })
 
-test('passes query component props to queryFn', async () => {
+it('passes query component props to queryFn', async () => {
   const MyQueryComponent = defineQueryComponent({
     keyFn: ({ myProp, variables }) => [myProp, variables],
     queryFn: ({ queryKey }) => {
@@ -43,7 +43,7 @@ test('passes query component props to queryFn', async () => {
   })
 })
 
-test('query component shows default loading provided via DefaultLoadingErrorProvider', async () => {
+it('query component shows default loading provided via DefaultLoadingErrorProvider', async () => {
   const MyQueryComponent = defineQueryComponent({
     keyFn: ({}) => ['random-key', {}],
     queryFn: () => {
@@ -60,7 +60,7 @@ test('query component shows default loading provided via DefaultLoadingErrorProv
   expect(getByTestId('loading-state')).toHaveTextContent('default loading...');
 })
 
-test('query component can override default loading element', async () => {
+it('query component can override default loading element', async () => {
   const MyQueryComponent = defineQueryComponent({
     keyFn: ({}) => ['random-key', {}],
     queryFn: () => {
@@ -77,7 +77,7 @@ test('query component can override default loading element', async () => {
   expect(getByTestId('loading-state')).toHaveTextContent('loading...');
 })
 
-test('useDefaultLoadingError read context for defaults correctly', async () => {
+it('setting default error prop is provided', async () => {
   function CustomComponent() {
     const { error } = useDefaultLoadingError();
 
