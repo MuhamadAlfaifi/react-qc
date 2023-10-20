@@ -1,7 +1,8 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { useDefaultLoadingError } from './default-loading-error-provider';
-import { QueryStatusWithPending, TKeyFn, TQueryProps, TQueryResults, TSelect } from './types';
+import { QueryStatusWithPending, TKeyFn, TQueryResults, TRenderResults, TSelect } from './types';
 import { defaultSelect } from './utils';
+import { ReactNode } from 'react';
 
 export function defineQueryComponent<TVariables>(keyFn: TKeyFn<TVariables>, defaultOptions: UseQueryOptions) {
 
@@ -25,7 +26,8 @@ export function defineQueryComponent<TVariables>(keyFn: TKeyFn<TVariables>, defa
   }
 
   function Component<T = unknown>(
-    { variables = ({} as TVariables), select = defaultSelect<T>, hasLoading, loading, render, children, ...props }: TQueryProps<TVariables, T>
+    { variables = ({} as TVariables), select = defaultSelect<T>, hasLoading, loading, render, children, ...props }: 
+    { variables: TVariables, select: TSelect<T>, hasLoading?: boolean, loading?: ReactNode, render?: TRenderResults<T>, children?: TRenderResults<T> } & UseQueryOptions<T>
   ) {
     const { loading: defaultLoading } = useDefaultLoadingError();
     const { data, query }: TQueryResults<T> = useBaseQuery(variables, select, { throwOnError: true, ...props } as UseQueryOptions);

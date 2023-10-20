@@ -1,4 +1,4 @@
-import type { QueryKey, QueryStatus, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import type { QueryKey, QueryStatus, UseQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 
@@ -29,5 +29,3 @@ export type TRenderResults<T> = (props: TQueryResults<T>) => ReactNode;
 export type TKeyFn<T> = (options: T) => QueryKey;
 
 export type TSelect<T> = (data: unknown) => T;
-
-export type TQueryProps<TVariables, T = unknown> = { variables: TVariables, select: TSelect<T>, hasLoading?: boolean, loading?: ReactNode, render?: TRenderResults<T>, children?: TRenderResults<T> } & UseQueryOptions<T>
