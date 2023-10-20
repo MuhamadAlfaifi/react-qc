@@ -1,8 +1,6 @@
 import { Get } from '../api/queries';
 import { Catch } from 'react-qc';
 
-type TSelect<T> = T extends (...args: any[]) => infer R ? R : unknown;
-
 type TName = {
   title: string;
   first: string;
@@ -13,17 +11,21 @@ type TItem = {
   name: TName;
 }
 
-function names(data: { results: TItem[] }): TName[] {
-  return data?.results?.map((item) => item.name) || [];
-}
+function names(data: unknown): TName[] {
+  return (data as { results: TItem[] })?.results?.map((item) => item.name) || [];
+} 
 
 export default function HomePage() {
+  const { data } = Get.useQuery({
+    url: 'https://randomuser.me/api/?results=10',
+  }, names)
+
   return (
     <div>
       <p>
         This page is rendered by the <code>Home</code> component.
         <Catch>
-          <Get url="https://randomuser.me/api/?results=10" select={names} render={(data: TSelect<typeof names>) => 
+          <Get variables={{ url: '' }} refetchInterval={48} render={({ data }) => 
             <ul>
               {data.map((name, index) => (
                 <li key={index}>{name.first} {name.last}</li>

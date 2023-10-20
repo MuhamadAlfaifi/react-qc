@@ -1,13 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
+import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { useDefaultLoadingError } from './default-loading-error-provider';
-import { QueryStatusWithPending } from './types';
+import { QueryStatusWithPending, TKeyFn, TQueryProps, TQueryResults, TSelect } from './types';
+import { defaultSelect } from './utils';
 
-export function defineQueryComponent({ keyFn, queryFn, ...defaultOptions }: any) {
-  function useBaseQuery({ select, ...options }: any) {
+export function defineQueryComponent<TVariables>(keyFn: TKeyFn<TVariables>, defaultOptions: UseQueryOptions) {
+
+  function useBaseQuery<T = unknown>(variables: TVariables, select: TSelect<T> = defaultSelect<T>, options?: UseQueryOptions): TQueryResults<T> {
     const query = useQuery({
-      queryKey: keyFn({ ...defaultOptions, ...options }),
-      queryFn,
-      select: (data: any) => {
+      queryKey: keyFn(variables),
+      select: (data: unknown) => {
         if (select) {
           return select(data);
         }
@@ -18,17 +19,19 @@ export function defineQueryComponent({ keyFn, queryFn, ...defaultOptions }: any)
       ...options,
     });
 
-    const data = query.data;
+    const data = query.data as T;
 
     return { data, query };
   }
 
-  function Component({ hasLoading, loading, ...props }: any) {
+  function Component<T = unknown>(
+    { variables = ({} as TVariables), select = defaultSelect<T>, hasLoading, loading, render, children, ...props }: TQueryProps<TVariables, T>
+  ) {
     const { loading: defaultLoading } = useDefaultLoadingError();
-    const { data, query } = useBaseQuery({ throwOnError: true, ...props });
+    const { data, query }: TQueryResults<T> = useBaseQuery(variables, select, { throwOnError: true, ...props } as UseQueryOptions);
 
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
-    const finalLoading = props.loading || defaultLoading;
+    const finalLoading = loading || defaultLoading;
     
     const status = query.status as QueryStatusWithPending;
     
@@ -36,8 +39,12 @@ export function defineQueryComponent({ keyFn, queryFn, ...defaultOptions }: any)
       return finalLoading;
     }
 
-    return props.render(data, query);
+    return render ? render({ data, query }) : children ? children({ data, query }) : null;
   }
 
-  return Object.assign(Component, { useQuery: useBaseQuery });
+  return Object.assign(Component, { 
+    useQuery: useBaseQuery, 
+    keyFn: (options: TVariables) => keyFn(options),
+    queryFn: defaultOptions.queryFn,
+  });
 }
