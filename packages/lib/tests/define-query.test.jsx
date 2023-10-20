@@ -5,47 +5,45 @@ import { DefaultLoadingErrorProvider, useDefaultLoadingError } from '../src/defa
 import React from 'react';
 
 it('does not fail when creating query component', () => {
-  const options = {
-    keyFn: ({ myProp = 'my-key', myProps = { value1: 'value1', value2: 'value2' } }) => [myProp, myProps],
-    queryFn: () => Promise.resolve(10),
-  };
+  const queryFn = () => Promise.resolve(10);
 
-  defineQueryComponent(options);
+  defineQueryComponent({ queryFn });
+  
+  const keyFn = ({ myProp = 'my-key', myProps = { value1: 'value1', value2: 'value2' } }) => [myProp, myProps];
+  
+  defineQueryComponent({ queryFn }, keyFn);
 })
 
 it('passes query component props to queryFn', async () => {
-  const MyQueryComponent = defineQueryComponent({
-    keyFn: ({ myProp, variables }) => [myProp, variables],
-    queryFn: ({ queryKey }) => {
-      return Promise.resolve(queryKey)
-    },
-  });
+  const keyFn = (variables) => [variables];
+  const queryFn = ({ queryKey }) => Promise.resolve(queryKey);
+
+  const MyQueryComponent = defineQueryComponent({ queryFn }, keyFn);
 
   expect(MyQueryComponent).toBeDefined();
 
   function MyHook() {
-    const { data } = MyQueryComponent.useQuery({ myProp: 'my-key-lajksdf', variables: { value1: 'value1-jioajsdf', value2: 'value2-joifds' } });
+    const { data } = MyQueryComponent.useQuery({ myProp: 'my-key-lajksdf', value1: 'value1-jioajsdf', value2: 'value2-joifds' });
     return <div data-testid="my-hook">{JSON.stringify(data)}</div>;
   }
 
   const { getByTestId } = render(
     <>
-      <MyQueryComponent myProp="my-key" variables={{ value1: 'value1', value2: 'value2' }} render={key => 
-        <div data-testid="my-query-component">{JSON.stringify(key)}</div>
+      <MyQueryComponent variables={{ myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
+        <div data-testid="my-query-component">{JSON.stringify(data)}</div>
       } />
       <MyHook />
     </>
   );
 
   await waitFor(() => {
-    expect(getByTestId('my-query-component')).toHaveTextContent('["my-key",{"value1":"value1","value2":"value2"}]')
-    expect(getByTestId('my-hook')).toHaveTextContent('["my-key-lajksdf",{"value1":"value1-jioajsdf","value2":"value2-joifds"}]')
+    expect(getByTestId('my-query-component')).toHaveTextContent('[{"myProp":"my-key","value1":"value1","value2":"value2"}]')
+    expect(getByTestId('my-hook')).toHaveTextContent('[{"myProp":"my-key-lajksdf","value1":"value1-jioajsdf","value2":"value2-joifds"}]')
   })
 })
 
 it('query component shows default loading provided via DefaultLoadingErrorProvider', async () => {
   const MyQueryComponent = defineQueryComponent({
-    keyFn: ({}) => ['random-key', {}],
     queryFn: () => {
       return new Promise(resolve => setTimeout(() => resolve(0), 300));
     },
@@ -62,7 +60,6 @@ it('query component shows default loading provided via DefaultLoadingErrorProvid
 
 it('query component can override default loading element', async () => {
   const MyQueryComponent = defineQueryComponent({
-    keyFn: ({}) => ['random-key', {}],
     queryFn: () => {
       return new Promise(resolve => setTimeout(() => resolve(0), 300));
     },
