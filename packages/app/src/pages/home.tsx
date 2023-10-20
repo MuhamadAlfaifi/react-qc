@@ -11,21 +11,25 @@ type TItem = {
   name: TName;
 }
 
-function names(data: unknown): TName[] {
+export function names(data: unknown): TName[] {
   return (data as { results: TItem[] })?.results?.map((item) => item.name) || [];
-} 
+}
+
+export function name(data: unknown): TName {
+  return (data as { results: TItem[] })?.results?.[0]?.name || { title: '', first: '', last: '' };
+}
 
 export default function HomePage() {
   const { data } = Get.useQuery({
     url: 'https://randomuser.me/api/?results=10',
-  }, names)
+  }, name)
 
   return (
     <div>
       <p>
         This page is rendered by the <code>Home</code> component.
         <Catch>
-          <Get variables={{ url: '' }} select={names} refetchInterval={48} render={({ data }) => 
+          <Get variables={{ url: 'https://randomuser.me/api/?results=10' }} refetchInterval={48} render={({ data }) => 
             <ul>
               {data.map((name, index) => (
                 <li key={index}>{name.first} {name.last}</li>

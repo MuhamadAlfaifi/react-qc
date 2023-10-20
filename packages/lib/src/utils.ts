@@ -9,3 +9,7 @@ export function errorRender(x: QCError): (args: FallbackProps) => ReactNode {
 export function defaultSelect<T>(data: unknown): T {
   return data as T;
 }
+
+export function defaultKeyFn<TVariables = unknown>(variables?: TVariables) {
+  return [variables];
+};
