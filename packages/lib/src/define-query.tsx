@@ -8,10 +8,10 @@ import { useExtensions } from './use-extensions';
 export function defineQueryComponent<TVariables, U = unknown>(defaultOptions: UseQueryOptions, keyFn: TKeyFn<WithExtensions<TVariables>> = defaultKeyFn) {
 
   function useBaseQuery<T = U>(variables: WithExtensions<TVariables>, dataFn: TDataFn<T> = defaultDataFn<T>, options?: UseQueryOptions): TQueryResults<T> {
-    const __extensions = useExtensions(variables.__extensions as string[]);
+    const __use = useExtensions(variables.__use as string[]);
     
     const query = useQuery({
-      queryKey: keyFn({ ...variables, __extensions }),
+      queryKey: keyFn({ ...variables, __use }),
       ...defaultOptions,
       ...options,
     });

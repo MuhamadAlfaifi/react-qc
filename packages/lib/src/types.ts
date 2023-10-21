@@ -40,4 +40,4 @@ export type TDataFn<T> = (data: unknown) => T;
 
 export type TPagesFn<T> = (data: unknown[]) => T;
 
-export type WithExtensions<TVariables> = TVariables & { __extensions?: unknown[] };
+export type WithExtensions<TVariables> = TVariables & { __use?: unknown[] };

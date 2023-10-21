@@ -25,14 +25,14 @@ export function pagesNames(pages: unknown[]): TName[] {
 }
 
 export default function HomePage() {
-  const [searchParams] = useSearchParams();
-
   return (
     <div>
       <p>
         This page is rendered by the <code>Home</code> component.
+      </p>
+      <div className="grid grid-cols-2 gap-10">
         <Catch>
-          <Get variables={{ url: 'https://randomuser.me/api/?results=10', }} data={names} render={({ data }) => 
+          <Get variables={{ url: 'https://randomuser.me/api', results: 10, __use: ['useSearchParams'] }} data={names} render={({ data }) =>
             <ul>
               {data.map((name, index) => (
                 <li key={index}>{name.first} {name.last}</li>
@@ -41,7 +41,7 @@ export default function HomePage() {
           } />
         </Catch>
         <Catch>
-          <PaginatedGet variables={{ url: 'https://randomuser.me/api/?results=10', initialPageParam: 0 }} data={pagesNames} render={({ data, query }) => 
+          <PaginatedGet variables={{ url: 'https://randomuser.me/api/?results=10', initialPageParam: 0 }} data={pagesNames} render={({ data, query }) =>
             <ul>
               {data.map((name, index) => (
                 <li key={index}>{name.first} {name.last}</li>
@@ -50,7 +50,7 @@ export default function HomePage() {
             </ul>
           } />
         </Catch>
-      </p>
+      </div>
     </div>
   );
 }

@@ -8,10 +8,10 @@ import { useExtensions } from './use-extensions';
 export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOptions: UseInfiniteQueryOptions, keyFn: TKeyFn<WithExtensions<TVariables>> = defaultKeyFn) {
 
   function useBaseInfiniteQuery<T = U>(variables: WithExtensions<TVariables>, dataFn: TPagesFn<T> = defaultDataFn<T>, options?: UseInfiniteQueryOptions): TInfiniteQueryResults<T> {
-    const __extensions = useExtensions(variables.__extensions as string[]);
+    const __use = useExtensions(variables.__use as string[]);
 
     const query = useInfiniteQuery({
-      queryKey: keyFn({ ...variables, __extensions }),
+      queryKey: keyFn({ ...variables, __use }),
       ...defaultOptions,
       ...options,
     });
