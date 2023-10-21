@@ -2,8 +2,9 @@ import { waitFor } from '@testing-library/react';
 import { render } from './shared';
 import { defineQueryComponent } from '../src/define-query';
 import { defineInfiniteQueryComponent } from '../src/define-infinite-query';
-import { DefaultLoadingErrorProvider, useDefaultLoadingError } from '../src/default-loading-error-provider';
+import { QcProvider, useQcDefaults } from '../src/qc-provider';
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 it('does not fail when creating query component', () => {
   const queryFn = () => Promise.resolve(10);
@@ -18,25 +19,15 @@ it('does not fail when creating query component', () => {
 
 it('passes query component props to queryFn', async () => {
   const keyFn = (variables) => [variables];
-  const queryFn = ({ queryKey }) => Promise.resolve([queryKey]);
+  const queryFn = ({ queryKey }) => Promise.resolve(queryKey);
 
   const MyQueryComponent = defineQueryComponent({ queryFn }, keyFn);
-  const MyInfiniteQueryComponent = defineInfiniteQueryComponent({ 
-    queryFn,
-    getNextPageParam: (_, pages) => pages.length + 1,
-  }, keyFn);
 
   expect(MyQueryComponent).toBeDefined();
-  expect(MyInfiniteQueryComponent).toBeDefined();
 
   function MyQueryHook() {
     const { data } = MyQueryComponent.useQuery({ myProp: 'my-key-lajksdf', value1: 'value1-jioajsdf', value2: 'value2-joifds' });
     return <div data-testid="my-query-hook">{JSON.stringify(data)}</div>;
-  }
-
-  function MyInfiniteHook() {
-    const { data } = MyInfiniteQueryComponent.useInfiniteQuery({ myProp: 'my-key-lajksdf', value1: 'value1-jioajsdf', value2: 'value2-joifds' });
-    return <div data-testid="my-infinite-query-hook">{JSON.stringify(data)}</div>;
   }
 
   const { getByTestId } = render(
@@ -46,24 +37,16 @@ it('passes query component props to queryFn', async () => {
         <div data-testid="my-query-component">{JSON.stringify(data)}</div>
       } />
       <MyQueryHook />
-
-      {/* infinite query */}
-      {/* <MyInfiniteQueryComponent variables={{ myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
-        <div data-testid="my-infinite-query-component">{JSON.stringify(data)}</div>
-      } />
-      <MyInfiniteHook /> */}
     </>
   );
 
   await waitFor(() => {
-    expect(getByTestId('my-query-component')).toHaveTextContent('[{"myProp":"my-key","value1":"value1","value2":"value2"}]')
-    expect(getByTestId('my-query-hook')).toHaveTextContent('[{"myProp":"my-key-lajksdf","value1":"value1-jioajsdf","value2":"value2-joifds"}]')
-    // expect(getByTestId('my-infinite-query-component')).toHaveTextContent('[{"myProp":"my-key","value1":"value1","value2":"value2"}]')
-    // expect(getByTestId('my-infinite-query-hook')).toHaveTextContent('[{"myProp":"my-key-lajksdf","value1":"value1-jioajsdf","value2":"value2-joifds"}]')
+    expect(getByTestId('my-query-component')).toHaveTextContent('[{"myProp":"my-key","value1":"value1","value2":"value2","__extensions":[]}]')
+    expect(getByTestId('my-query-hook')).toHaveTextContent('[{"myProp":"my-key-lajksdf","value1":"value1-jioajsdf","value2":"value2-joifds","__extensions":[]}]')
   })
 })
 
-it('query component shows default loading provided via DefaultLoadingErrorProvider', async () => {
+it('query component shows default loading provided via QcProvider', async () => {
   const MyQueryComponent = defineQueryComponent({
     queryFn: () => {
       return new Promise(resolve => setTimeout(() => resolve(0), 300));
@@ -71,9 +54,9 @@ it('query component shows default loading provided via DefaultLoadingErrorProvid
   });
 
   const { getByTestId } = render(
-    <DefaultLoadingErrorProvider loading={<div data-testid="loading-state">default loading...</div>}>
+    <QcProvider loading={<div data-testid="loading-state">default loading...</div>}>
       <MyQueryComponent render={_ => null} />
-    </DefaultLoadingErrorProvider>
+    </QcProvider>
   );
 
   expect(getByTestId('loading-state')).toHaveTextContent('default loading...');
@@ -87,9 +70,9 @@ it('query component can override default loading element', async () => {
   });
 
   const { getByTestId } = render(
-    <DefaultLoadingErrorProvider loading={<div data-testid="loading-state">default loading...</div>}>
+    <QcProvider loading={<div data-testid="loading-state">default loading...</div>}>
       <MyQueryComponent loading={<div data-testid="loading-state">loading...</div>} render={_ => null} />
-    </DefaultLoadingErrorProvider>
+    </QcProvider>
   );
 
   expect(getByTestId('loading-state')).toHaveTextContent('loading...');
@@ -97,16 +80,36 @@ it('query component can override default loading element', async () => {
 
 it('setting default error prop is provided', async () => {
   function CustomComponent() {
-    const { error } = useDefaultLoadingError();
+    const { error } = useQcDefaults();
 
     return error;
   }
 
   const { findByTestId } = render(
-    <DefaultLoadingErrorProvider error={<div data-testid="error-state">default error...</div>}>
+    <QcProvider error={<div data-testid="error-state">default error...</div>}>
       <CustomComponent />
-    </DefaultLoadingErrorProvider>
+    </QcProvider>
   );
 
   expect(await findByTestId('error-state')).toHaveTextContent('default error...');
 })
+
+it('includes extension into variables when provided', async () => {
+  const MyQueryComponent = defineQueryComponent({
+    queryFn: ({ queryKey }) => {
+      return Promise.resolve(queryKey);
+    },
+  });
+
+  const { getByTestId } = render(
+    <QcProvider extensions={{ useSearchParams }}>
+      <MyQueryComponent variables={{ __extensions: ['useSearchParams'], myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
+        <div data-testid="my-query-component">{JSON.stringify(data)}</div>
+      } />
+    </QcProvider>
+  , { routerPath: '/?myProp=my-key&value1=value1&value2=value2' });
+
+  await waitFor(() => {
+    expect(getByTestId('my-query-component')).toHaveTextContent('[{"__extensions":["myProp=my-key&value1=value1&value2=value2"],"myProp":"my-key","value1":"value1","value2":"value2"}]')
+  });
+});

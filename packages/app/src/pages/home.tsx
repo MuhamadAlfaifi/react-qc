@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom';
 import { Get, PaginatedGet } from '../api/queries';
 import { Catch } from 'react-qc';
 
@@ -24,6 +25,8 @@ export function pagesNames(pages: unknown[]): TName[] {
 }
 
 export default function HomePage() {
+  const [searchParams] = useSearchParams();
+
   return (
     <div>
       <p>

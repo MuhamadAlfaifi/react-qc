@@ -8,12 +8,13 @@ export type QCErrorRender = (props: FallbackProps) => ReactNode;
 
 export type QCLoading = ReactNode;
 
-export type DefaultLoadingErrorContext = {
+export type QCDefaultsContext = {
   error: QCError
-  loading: QCLoading
+  loading: QCLoading,
+  extensions?: Record<string, unknown>,
 };
 
-export type DefaultLoadingErrorProviderProps = DefaultLoadingErrorContext & { children?: ReactNode };
+export type QCDefaultsProviderProps = QCDefaultsContext & { children?: ReactNode };
 
 export type TCatchProps = { error?: QCError, children?: ReactNode };
 
@@ -38,3 +39,5 @@ export type TKeyFn<T> = (options: T) => QueryKey;
 export type TDataFn<T> = (data: unknown) => T;
 
 export type TPagesFn<T> = (data: unknown[]) => T;
+
+export type WithExtensions<TVariables> = TVariables & { __extensions?: unknown[] };

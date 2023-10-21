@@ -1,11 +1,11 @@
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { TCatchProps } from './types';
-import { useDefaultLoadingError } from './default-loading-error-provider';
+import { useQcDefaults } from './qc-provider';
 import { errorRender } from './utils';
 
 export function Catch({ error, children }: TCatchProps) {
-  const { error: defaultError } = useDefaultLoadingError();
+  const { error: defaultError } = useQcDefaults();
 
   const fallbackRender = errorRender(error || defaultError);
 

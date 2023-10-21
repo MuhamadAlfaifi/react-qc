@@ -1,21 +1,21 @@
 import { createContext, useContext } from 'react';
 import type { 
-  DefaultLoadingErrorContext, 
-  DefaultLoadingErrorProviderProps, 
+  QCDefaultsContext, 
+  QCDefaultsProviderProps, 
 } from './types';
 
-const context = createContext<DefaultLoadingErrorContext>({
+const context = createContext<QCDefaultsContext>({
   error: ({ resetErrorBoundary }) => <div><div>an error occured!</div><button onClick={resetErrorBoundary}>resetErrorBoundary</button></div>,
   loading: 'loading...',
 });
 
-export function useDefaultLoadingError() {
+export function useQcDefaults() {
   return useContext(context);
 }
 
-export function DefaultLoadingErrorProvider({ error, loading, children }: DefaultLoadingErrorProviderProps) {
+export function QcProvider({ error, loading, extensions = {}, children }: QCDefaultsProviderProps) {
   return (
-    <context.Provider value={{ error, loading }}>
+    <context.Provider value={{ error, loading, extensions }}>
       {children}
     </context.Provider>
   );
