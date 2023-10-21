@@ -1,4 +1,4 @@
-import { Get } from '../api/queries';
+import { Get, PaginatedGet } from '../api/queries';
 import { Catch } from 'react-qc';
 
 type TName = {
@@ -19,21 +19,31 @@ export function name(data: unknown): TName {
   return (data as { results: TItem[] })?.results?.[0]?.name || { title: '', first: '', last: '' };
 }
 
-export default function HomePage() {
-  const { data } = Get.useQuery({
-    url: 'https://randomuser.me/api/?results=10',
-  }, name)
+export function pagesNames(pages: unknown[]): TName[] {
+  return (pages as unknown[])?.flatMap((page) => names(page)) || [];
+}
 
+export default function HomePage() {
   return (
     <div>
       <p>
         This page is rendered by the <code>Home</code> component.
         <Catch>
-          <Get variables={{ url: 'https://randomuser.me/api/?results=10' }} data={names} refetchInterval={48} render={({ data }) => 
+          <Get variables={{ url: 'https://randomuser.me/api/?results=10', }} data={names} render={({ data }) => 
             <ul>
               {data.map((name, index) => (
                 <li key={index}>{name.first} {name.last}</li>
               ))}
+            </ul>
+          } />
+        </Catch>
+        <Catch>
+          <PaginatedGet variables={{ url: 'https://randomuser.me/api/?results=10', initialPageParam: 0 }} data={pagesNames} render={({ data, query }) => 
+            <ul>
+              {data.map((name, index) => (
+                <li key={index}>{name.first} {name.last}</li>
+              ))}
+              <li><button onClick={() => query.fetchNextPage()}>fetch</button></li>
             </ul>
           } />
         </Catch>

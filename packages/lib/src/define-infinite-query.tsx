@@ -1,12 +1,12 @@
 import { UseInfiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query';
 import { useDefaultLoadingError } from './default-loading-error-provider';
-import { QueryStatusWithPending, TKeyFn, TQueryResults, TRenderResults, TDataFn } from './types';
+import { QueryStatusWithPending, TKeyFn, TRenderInfiniteResults, TPagesFn, TInfiniteQueryResults } from './types';
 import { defaultKeyFn, defaultDataFn } from './utils';
 import { ReactNode, useMemo } from 'react';
 
 export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOptions: UseInfiniteQueryOptions, keyFn: TKeyFn<TVariables> = defaultKeyFn) {
 
-  function useBaseInfiniteQuery<T = U>(variables: TVariables, dataFn: TDataFn<T> = defaultDataFn<T>, options?: UseInfiniteQueryOptions): TQueryResults<T> {
+  function useBaseInfiniteQuery<T = U>(variables: TVariables, dataFn: TPagesFn<T> = defaultDataFn<T>, options?: UseInfiniteQueryOptions): TInfiniteQueryResults<T> {
     const query = useInfiniteQuery({
       queryKey: keyFn(variables),
       ...defaultOptions,
@@ -28,11 +28,11 @@ export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOpt
 
   function Component<T = U>(
     { variables = ({} as TVariables), data, hasLoading, loading, render, children, ...props }: 
-    { variables: TVariables, data?: TDataFn<T>, hasLoading?: boolean, loading?: ReactNode, render?: TRenderResults<T>, children?: TRenderResults<T> } & UseInfiniteQueryOptions<T>
+    { variables: TVariables, data?: TPagesFn<T>, hasLoading?: boolean, loading?: ReactNode, render?: TRenderInfiniteResults<T>, children?: TRenderInfiniteResults<T> } & UseInfiniteQueryOptions<T>
   ) {
     const { loading: defaultLoading } = useDefaultLoadingError();
 
-    const results: TQueryResults<T> = useBaseInfiniteQuery(variables, data as TDataFn<T> | undefined, { throwOnError: true, ...props } as UseInfiniteQueryOptions);
+    const results: TInfiniteQueryResults<T> = useBaseInfiniteQuery(variables, data as TPagesFn<T> | undefined, { throwOnError: true, ...props } as UseInfiniteQueryOptions);
 
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
     const finalLoading = loading || defaultLoading;

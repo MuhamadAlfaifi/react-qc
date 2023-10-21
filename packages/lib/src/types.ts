@@ -1,4 +1,4 @@
-import type { QueryKey, QueryStatus, UseQueryResult } from '@tanstack/react-query';
+import type { QueryKey, QueryStatus, UseInfiniteQueryResult, UseQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 
@@ -24,8 +24,17 @@ export type TQueryResults<T> = {
   query: UseQueryResult,
 }
 
-export type TRenderResults<T> = (props: TQueryResults<T>) => ReactNode;
+export type TInfiniteQueryResults<T> = {
+  data: T,
+  query: UseInfiniteQueryResult,
+}
+
+export type TRenderQueryResults<T> = (props: TQueryResults<T>) => ReactNode;
+
+export type TRenderInfiniteResults<T> = (props: TInfiniteQueryResults<T>) => ReactNode;
 
 export type TKeyFn<T> = (options: T) => QueryKey;
 
 export type TDataFn<T> = (data: unknown) => T;
+
+export type TPagesFn<T> = (data: unknown[]) => T;
