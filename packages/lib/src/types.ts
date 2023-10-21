@@ -28,4 +28,4 @@ export type TRenderResults<T> = (props: TQueryResults<T>) => ReactNode;
 
 export type TKeyFn<T> = (options: T) => QueryKey;
 
-export type TSelect<T> = (data: unknown) => T;
+export type TDataFn<T> = (data: unknown) => T;

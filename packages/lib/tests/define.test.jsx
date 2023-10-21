@@ -1,6 +1,7 @@
 import { waitFor } from '@testing-library/react';
 import { render } from './shared';
 import { defineQueryComponent } from '../src/define-query';
+import { defineInfiniteQueryComponent } from '../src/define-infinite-query';
 import { DefaultLoadingErrorProvider, useDefaultLoadingError } from '../src/default-loading-error-provider';
 import React from 'react';
 
@@ -12,6 +13,7 @@ it('does not fail when creating query component', () => {
   const keyFn = ({ myProp = 'my-key', myProps = { value1: 'value1', value2: 'value2' } }) => [myProp, myProps];
   
   defineQueryComponent({ queryFn }, keyFn);
+  defineInfiniteQueryComponent({ queryFn }, keyFn);
 })
 
 it('passes query component props to queryFn', async () => {

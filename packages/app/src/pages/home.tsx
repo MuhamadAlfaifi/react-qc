@@ -29,7 +29,7 @@ export default function HomePage() {
       <p>
         This page is rendered by the <code>Home</code> component.
         <Catch>
-          <Get variables={{ url: 'https://randomuser.me/api/?results=10' }} refetchInterval={48} render={({ data }) => 
+          <Get variables={{ url: 'https://randomuser.me/api/?results=10' }} data={names} refetchInterval={48} render={({ data }) => 
             <ul>
               {data.map((name, index) => (
                 <li key={index}>{name.first} {name.last}</li>

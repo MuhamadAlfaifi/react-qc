@@ -6,7 +6,7 @@ export function errorRender(x: QCError): (args: FallbackProps) => ReactNode {
   return typeof x === 'function' ? x : () => x;
 }
 
-export function defaultSelect<T>(data: unknown): T {
+export function defaultDataFn<T>(data: unknown): T {
   return data as T;
 }
 
