@@ -1,3 +1,24 @@
+# Table of Contents
+
+- [Installation](#installation)
+- [Define new query](#define-new-query)
+- [Use the query](#use-the-query)
+- [Set custom loading/error](#set-custom-loadingerror)
+- [Add provider for default loading/error](#add-provider-for-default-loadingerror)
+- [Add retry button](#add-retry-button)
+- [Define custom variables](#define-custom-variables)
+- [Pass variables](#pass-variables)
+- [Optional: keyFn](#optional-keyfn)
+- [Custom data function](#custom-data-function)
+- [Pagination](#pagination)
+- [Use infinite query](#use-infinite-query)
+- [Use infinite query with custom data function](#use-infinite-query-with-custom-data-function)
+- [Advanced: add extensions](#advanced-add-extensions)
+- [Advanced: read extensions](#advanced-read-extensions)
+- [Advanced: use extensions](#advanced-use-extensions)
+- [Advanced: custom extensions handler](#advanced-custom-extensions-handler)
+
+
 # Installation
 
 ```bash
