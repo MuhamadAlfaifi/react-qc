@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Get, PaginatedGet } from '../api/queries';
 import { Catch } from 'react-qc';
 
@@ -29,10 +29,11 @@ export default function HomePage() {
     <div>
       <p>
         This page is rendered by the <code>Home</code> component.
+        <Link to="?name=John&results=10">John</Link>
       </p>
       <div className="grid grid-cols-2 gap-10">
         <Catch>
-          <Get variables={{ url: 'https://randomuser.me/api', results: 10, __use: ['useSearchParams'] }} data={names} render={({ data }) =>
+          <Get variables={{ url: 'https://randomuser.me/api', __use: ['useSearchParams'] }} data={names} render={({ data }) =>
             <ul>
               {data.map((name, index) => (
                 <li key={index}>{name.first} {name.last}</li>
