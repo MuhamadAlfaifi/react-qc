@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { FallbackProps } from 'react-error-boundary';
-import { QCError } from './types';
+import { QCError, TExtensions, TUseFn } from './types';
 
 export function errorRender(x: QCError): (args: FallbackProps) => ReactNode {
   return typeof x === 'function' ? x : () => x;
@@ -14,8 +14,8 @@ export function defaultKeyFn<TVariables = unknown>(variables?: TVariables) {
   return [variables];
 };
 
-export function searchAppend(pairs: [string, string][], injectParams = true) {
-  return function ({ searchParams, params }: { searchParams?: URLSearchParams, params?: Record<string, unknown> }) {
+export function searchAppend(pairs: [string, string][], injectParams = true): TUseFn {
+  return function ({ searchParams, params }: TExtensions) {
     const newSearchParams = new URLSearchParams(searchParams);
 
     for (const [key, value] of pairs) {
@@ -39,8 +39,8 @@ export function searchAppend(pairs: [string, string][], injectParams = true) {
   };
 }
 
-export function searchOnly(keys: string[], injectParams = true) {
-  return function ({ searchParams, params }: { searchParams?: URLSearchParams, params?: Record<string, unknown> }) {
+export function searchOnly(keys: string[], injectParams = true): TUseFn {
+  return function ({ searchParams, params }: TExtensions) {
     const newSearchParams = new URLSearchParams();
     
     for (const key of keys) {
