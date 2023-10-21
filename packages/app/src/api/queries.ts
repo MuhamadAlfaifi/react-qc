@@ -1,8 +1,8 @@
 import { defineQueryComponent, defineInfiniteQueryComponent } from 'react-qc';
 
 export const Get = defineQueryComponent<{ url: string, results?: number }>({
-  queryFn: async ({ queryKey: [{ url, __use: [__searchParams] }] }: any) => {
-    const searchParams = new URLSearchParams(__searchParams);
+  queryFn: async ({ queryKey: [{ url, __use }] }: any) => {
+    const searchParams = new URLSearchParams(__use.searchParams);
     const res = await fetch(url + '?' + searchParams.toString());
     return res.json();
   },
