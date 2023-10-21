@@ -1,7 +1,7 @@
 {
   "name": "react-qc",
   "version": "0.2.0",
-  "description": "React-QC simplifies the creation of reusable data fetching components by abstracting React Query hooks into intuitive component query helpers.",
+  "description": "React-QC simplifies the creation of reusable data fetching components",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages/lib",
   "repository": {
@@ -25,7 +25,7 @@
     "test": "vitest --watch"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^4.36.1",
+    "@tanstack/react-query": "^4.36.1 || ^5.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.17.0"
