@@ -40,4 +40,14 @@ export type TDataFn<T> = (data: unknown) => T;
 
 export type TPagesFn<T> = (data: unknown[]) => T;
 
-export type WithExtensions<TVariables> = TVariables & { __use?: unknown[] };
+export type TUnresolvedUse = string[] | (() => Record<string, unknown>);
+
+export type TResolvedUse = Record<string, unknown>;
+
+export type WithUnresolvedUse<TVariables> = TVariables & { 
+  __use?: TUnresolvedUse,
+};
+
+export type WithResolvedUse<TVariables> = TVariables & {
+  __use: TResolvedUse,
+};

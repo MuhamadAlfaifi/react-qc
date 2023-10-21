@@ -1,14 +1,14 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { useQcDefaults } from './qc-provider';
-import { QueryStatusWithPending, TKeyFn, TQueryResults, TRenderQueryResults, TDataFn, WithExtensions } from './types';
+import { QueryStatusWithPending, TKeyFn, TQueryResults, TRenderQueryResults, TDataFn, WithResolvedUse, WithUnresolvedUse, TUnresolvedUse, TResolvedUse } from './types';
 import { defaultKeyFn, defaultDataFn } from './utils';
 import { ReactNode, useMemo } from 'react';
 import { useExtensions } from './use-extensions';
 
-export function defineQueryComponent<TVariables, U = unknown>(defaultOptions: UseQueryOptions, keyFn: TKeyFn<WithExtensions<TVariables>> = defaultKeyFn) {
+export function defineQueryComponent<TVariables, U = unknown>(defaultOptions: UseQueryOptions, keyFn: TKeyFn<WithResolvedUse<TVariables>> = defaultKeyFn) {
 
-  function useBaseQuery<T = U>(variables: WithExtensions<TVariables>, dataFn: TDataFn<T> = defaultDataFn<T>, options?: UseQueryOptions): TQueryResults<T> {
-    const __use = useExtensions(variables.__use as string[]);
+  function useBaseQuery<T = U>(variables: WithUnresolvedUse<TVariables>, dataFn: TDataFn<T> = defaultDataFn<T>, options?: UseQueryOptions): TQueryResults<T> {
+    const __use = useExtensions<TUnresolvedUse, TResolvedUse>(variables.__use);
     
     const query = useQuery({
       queryKey: keyFn({ ...variables, __use }),
@@ -30,8 +30,8 @@ export function defineQueryComponent<TVariables, U = unknown>(defaultOptions: Us
   }
 
   function Component<T = U>(
-    { variables = ({} as WithExtensions<TVariables>), data, hasLoading, loading, render, children, ...props }: 
-    { variables: WithExtensions<TVariables>, data?: TDataFn<T>, hasLoading?: boolean, loading?: ReactNode, render?: TRenderQueryResults<T>, children?: TRenderQueryResults<T> } & UseQueryOptions<T>
+    { variables = ({} as WithUnresolvedUse<TVariables>), data, hasLoading, loading, render, children, ...props }: 
+    { variables: WithUnresolvedUse<TVariables>, data?: TDataFn<T>, hasLoading?: boolean, loading?: ReactNode, render?: TRenderQueryResults<T>, children?: TRenderQueryResults<T> } & UseQueryOptions<T>
   ) {
     const { loading: defaultLoading } = useQcDefaults();
 
@@ -51,7 +51,7 @@ export function defineQueryComponent<TVariables, U = unknown>(defaultOptions: Us
 
   return Object.assign(Component, { 
     useQuery: useBaseQuery, 
-    keyFn: (options: WithExtensions<TVariables>) => keyFn(options),
+    keyFn: (options: WithResolvedUse<TVariables>) => keyFn(options),
     queryFn: defaultOptions.queryFn,
   });
 }

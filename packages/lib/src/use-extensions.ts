@@ -1,19 +1,27 @@
 import { useQcDefaults } from './qc-provider';
 
-export function useExtensions(names: string[] = []) {
+export function useExtensions<T, U>(
+  __use?: T
+): U {
   const { extensions } = useQcDefaults();
   const params = (extensions?.useParams as () => any)?.();
-  const searchParams = (extensions?.useSearchParams as () => any)?.()[0];
+  const searchParams = (extensions?.useSearchParams as () => any)?.()?.[0];
 
-  const __extensions = names.map(i => {
-    if (i === 'useParams') {
-      return params;
-    }
-    if (i === 'useSearchParams') {
-      return Array.from(searchParams);
-    }
-    return i;
-  });
+  if (typeof __use === 'function') {
+    return __use({ params, searchParams }) as U;
+  }
 
-  return __extensions;
+  if (Array.isArray(__use)) {
+    return __use.reduce((acc, method) => {
+      if (method === 'useParams') {
+        acc['params'] = params;
+      } else if (method === 'useSearchParams') {
+        acc['searchParams'] = Array.from(searchParams || []);
+      }
+
+      return acc;
+    }, {} as U);
+  }
+
+  return {} as U;
 }
