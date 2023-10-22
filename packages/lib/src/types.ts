@@ -40,21 +40,17 @@ export type TDataFn<T> = (data: unknown) => T;
 
 export type TPagesFn<T> = (data: unknown[]) => T;
 
-export type TExtensions = {
-  searchParams?: URLSearchParams,
-  params?: Record<string, unknown>,
+export type TResolvedExt = {
+  searchParams: [string, string][];
+  params: Record<string, unknown>;
 };
 
-export type TUseFn = (extensions: TExtensions) => Record<string, unknown>;
+export type TExtMiddleware = (extensions: TResolvedExt) => TResolvedExt;
 
-export type TUnresolvedUse = string[] | TUseFn;
-
-export type TResolvedUse = Record<string, unknown>;
-
-export type WithUnresolvedUse<TVariables> = TVariables & { 
-  __use?: TUnresolvedUse,
+export type WithExtMiddlware<TVariables> = TVariables & { 
+  __ext?: TExtMiddleware,
 };
 
-export type WithResolvedUse<TVariables> = TVariables & {
-  __use: TResolvedUse,
+export type WithResolvedExt<TVariables> = TVariables & {
+  __ext: TResolvedExt,
 };

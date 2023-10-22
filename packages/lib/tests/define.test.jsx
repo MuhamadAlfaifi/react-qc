@@ -5,7 +5,7 @@ import { defineInfiniteQueryComponent } from '../src/define-infinite-query';
 import { QcProvider, useQcDefaults } from '../src/qc-provider';
 import React from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { searchAppend, searchOnly } from '../src/utils';
+import { append, all } from '../src/middleware';
 
 it('does not fail when creating query component', () => {
   const queryFn = () => Promise.resolve(10);
@@ -42,8 +42,8 @@ it('passes query component props to queryFn', async () => {
   );
 
   await waitFor(() => {
-    expect(getByTestId('my-query-component')).toHaveTextContent('[{"myProp":"my-key","value1":"value1","value2":"value2","__use":{}}]')
-    expect(getByTestId('my-query-hook')).toHaveTextContent('[{"myProp":"my-key-lajksdf","value1":"value1-jioajsdf","value2":"value2-joifds","__use":{}}]')
+    expect(getByTestId('my-query-component')).toHaveTextContent('[{"myProp":"my-key","value1":"value1","value2":"value2","__ext":{"searchParams":[],"params":{}}}]')
+    expect(getByTestId('my-query-hook')).toHaveTextContent('[{"myProp":"my-key-lajksdf","value1":"value1-jioajsdf","value2":"value2-joifds","__ext":{"searchParams":[],"params":{}}}]')
   })
 })
 
@@ -104,21 +104,21 @@ it('includes extension into variables when provided', async () => {
 
   const { getByTestId } = render(
     <QcProvider extensions={{ useSearchParams, useParams }}>
-      <MyQueryComponent variables={{ __use: ['useSearchParams'], myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
+      <MyQueryComponent variables={{ __ext: all(), myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
         <div data-testid="my-query-component">{JSON.stringify(data)}</div>
       } />
-      <MyQueryComponent variables={{ __use: searchAppend([['value3', 'value3']]), myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
+      <MyQueryComponent variables={{ __ext: append([['value3', 'value3']]), myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
         <div data-testid="my-query-component3">{JSON.stringify(data)}</div>
       } />
-      <MyQueryComponent variables={{ __use: searchOnly(['myProp']), myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
+      <MyQueryComponent variables={{ __ext: all(['myProp']), myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
         <div data-testid="my-query-component4">{JSON.stringify(data)}</div>
       } />
     </QcProvider>
   , { routerPath: '/?myProp=my-key&value1=value1&value2=value2' });
 
   await waitFor(() => {
-    expect(getByTestId('my-query-component')).toHaveTextContent('[{"__use":{"searchParams":[["myProp","my-key"],["value1","value1"],["value2","value2"]]},"myProp":"my-key","value1":"value1","value2":"value2"}]')
-    expect(getByTestId('my-query-component3')).toHaveTextContent('[{"__use":{"searchParams":[["myProp","my-key"],["value1","value1"],["value2","value2"],["value3","value3"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
-    expect(getByTestId('my-query-component4')).toHaveTextContent('[{"__use":{"searchParams":[["myProp","my-key"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
+    expect(getByTestId('my-query-component')).toHaveTextContent('[{"__ext":{"searchParams":[["myProp","my-key"],["value1","value1"],["value2","value2"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
+    expect(getByTestId('my-query-component3')).toHaveTextContent('[{"__ext":{"searchParams":[["myProp","my-key"],["value1","value1"],["value2","value2"],["value3","value3"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
+    expect(getByTestId('my-query-component4')).toHaveTextContent('[{"__ext":{"searchParams":[["myProp","my-key"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
   });
 });

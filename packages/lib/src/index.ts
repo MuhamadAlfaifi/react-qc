@@ -4,3 +4,4 @@ export * from './define-query';
 export * from './define-infinite-query';
 export * from './catch';
 export * from './utils';
+export * from './middleware';

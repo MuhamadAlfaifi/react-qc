@@ -1,17 +1,17 @@
 import { UseInfiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query';
 import { useQcDefaults } from './qc-provider';
-import { QueryStatusWithPending, TKeyFn, TRenderInfiniteResults, TPagesFn, TInfiniteQueryResults, WithUnresolvedUse, WithResolvedUse, TUnresolvedUse, TResolvedUse } from './types';
+import { QueryStatusWithPending, TKeyFn, TRenderInfiniteResults, TPagesFn, TInfiniteQueryResults, WithExtMiddlware, WithResolvedExt, TExtMiddleware, TResolvedExt } from './types';
 import { defaultKeyFn, defaultDataFn } from './utils';
 import { ReactNode, useMemo } from 'react';
 import { useExtensions } from './use-extensions';
 
-export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOptions: UseInfiniteQueryOptions, keyFn: TKeyFn<WithResolvedUse<TVariables>> = defaultKeyFn) {
+export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOptions: UseInfiniteQueryOptions, keyFn: TKeyFn<WithResolvedExt<TVariables>> = defaultKeyFn) {
 
-  function useBaseInfiniteQuery<T = U>(variables: WithUnresolvedUse<TVariables>, dataFn: TPagesFn<T> = defaultDataFn<T>, options?: UseInfiniteQueryOptions): TInfiniteQueryResults<T> {
-    const __use = useExtensions<TUnresolvedUse, TResolvedUse>(variables.__use);
+  function useBaseInfiniteQuery<T = U>(variables: WithExtMiddlware<TVariables>, dataFn: TPagesFn<T> = defaultDataFn<T>, options?: UseInfiniteQueryOptions): TInfiniteQueryResults<T> {
+    const __ext = useExtensions<TExtMiddleware, TResolvedExt>(variables.__ext);
 
     const query = useInfiniteQuery({
-      queryKey: keyFn({ ...variables, __use }),
+      queryKey: keyFn({ ...variables, __ext }),
       ...defaultOptions,
       ...options,
     });
@@ -30,8 +30,8 @@ export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOpt
   }
 
   function Component<T = U>(
-    { variables = ({} as WithUnresolvedUse<TVariables>), data, hasLoading, loading, render, children, ...props }: 
-    { variables: WithUnresolvedUse<TVariables>, data?: TPagesFn<T>, hasLoading?: boolean, loading?: ReactNode, render?: TRenderInfiniteResults<T>, children?: TRenderInfiniteResults<T> } & UseInfiniteQueryOptions<T>
+    { variables = ({} as WithExtMiddlware<TVariables>), data, hasLoading, loading, render, children, ...props }: 
+    { variables: WithExtMiddlware<TVariables>, data?: TPagesFn<T>, hasLoading?: boolean, loading?: ReactNode, render?: TRenderInfiniteResults<T>, children?: TRenderInfiniteResults<T> } & UseInfiniteQueryOptions<T>
   ) {
     const { loading: defaultLoading } = useQcDefaults();
 
@@ -51,7 +51,7 @@ export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOpt
 
   return Object.assign(Component, { 
     useInfiniteQuery: useBaseInfiniteQuery, 
-    keyFn: (options: WithResolvedUse<TVariables>) => keyFn(options),
+    keyFn: (options: WithResolvedExt<TVariables>) => keyFn(options),
     queryFn: defaultOptions.queryFn,
   });
 }
