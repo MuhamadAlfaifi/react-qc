@@ -27,8 +27,8 @@ npm install react-qc
 
 ### Requirements
 
-- react: v18
-- react-dom: v18
+- react: ^16.8.0 || ^17 || ^18
+- react-dom: ^16.8.0 || ^17 || ^18
 - @tanstack/react-query: v4 || v5
 
 # Define new query
@@ -391,14 +391,14 @@ function App() {
 }
 ```
 
-# Advanced: read extensions
+# Advanced: read extensions data
 
 ```tsx
 import { defineQueryComponent } from 'react-qc';
 
 export const Get = defineQueryComponent({
   queryFn: async ({ signal, queryKey: [variables] }) => {
-    const search = new URLSearchParams(variables.__use.searchParams);
+    const search = new URLSearchParams(variables.__ext.searchParams);
 
     const path = variables.url + '?' + search.toString();
 
@@ -407,16 +407,16 @@ export const Get = defineQueryComponent({
 });
 ```
 
-# Advanced: use extensions
+# Advanced: use extensions middleware function
 
 ```tsx
 import { Get } from 'path/to/Get';
-import { searchOnly } from 'react-qc';
+import { all } from 'react-qc';
 
 // use `Get` as a component
 function MyComponent() {
   return (
-    <Get variables={{ url: 'https://randomuser.me/api', __use: searchOnly(['results']) }}>
+    <Get variables={{ url: 'https://randomuser.me/api', __ext: all(['results']) }}>
       {({ data }) => (
         <div>
           {JSON.stringify(data)}
@@ -427,28 +427,33 @@ function MyComponent() {
 }
 ```
 
-# Advanced: custom extensions handler
+# Advanced: use custom extensions middlweware function
 
 ```tsx
 import { Get } from 'path/to/Get';
+import { TExtMiddleware } from 'react-qc';
 
 // custom extensions handler
-function append(key, value) {
-  return (extensions) => {
-  const searchParams = new URLSearchParams(extensions.searchParams);
+function append(key, value): TExtMiddleware {
+  
+  function myMiddleware(extensions) {
+    const searchParams = new URLSearchParams(extensions.searchParams);
 
-  searchParams.append(key, value);
+    searchParams.append(key, value);
 
-  return {
-    searchParams: Array.from(searchParams),
-    params: extensions.params,
-  };
+    return {
+      searchParams: Array.from(searchParams),
+      params: extensions.params,
+    };
+  }
+  
+  return myMiddleware;
 }
 
 // use `Get` as a component
 function MyComponent() {
   return (
-    <Get variables={{ url: 'https://randomuser.me/api', __use: append('example', 'value') }}>
+    <Get variables={{ url: 'https://randomuser.me/api', __ext: append('example', 'value') }}>
       {({ data }) => (
         <div>
           {JSON.stringify(data)}
