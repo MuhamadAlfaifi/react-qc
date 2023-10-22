@@ -1,6 +1,6 @@
 import { UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { useQcDefaults } from './qc-provider';
-import { QueryStatusWithPending, TKeyFn, TQueryResults, TRenderQueryResults, TDataFn, WithResolvedExt, WithExtMiddlware, TExtMiddleware, TResolvedExt } from './types';
+import { QueryStatusWithPending, TKeyFn, TQueryResults, TRenderQueryResults, TDataFn, WithResolvedExt, WithExtMiddlware } from './types';
 import { defaultKeyFn, defaultDataFn } from './utils';
 import { ReactNode, useMemo } from 'react';
 import { useExtensions } from './use-extensions';

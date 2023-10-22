@@ -1,6 +1,6 @@
 import { UseInfiniteQueryOptions, useInfiniteQuery } from '@tanstack/react-query';
 import { useQcDefaults } from './qc-provider';
-import { QueryStatusWithPending, TKeyFn, TRenderInfiniteResults, TPagesFn, TInfiniteQueryResults, WithExtMiddlware, WithResolvedExt, TExtMiddleware, TResolvedExt } from './types';
+import { QueryStatusWithPending, TKeyFn, TRenderInfiniteResults, TPagesFn, TInfiniteQueryResults, WithExtMiddlware, WithResolvedExt } from './types';
 import { defaultKeyFn, defaultDataFn } from './utils';
 import { ReactNode, useMemo } from 'react';
 import { useExtensions } from './use-extensions';
@@ -8,7 +8,7 @@ import { useExtensions } from './use-extensions';
 export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOptions: UseInfiniteQueryOptions, keyFn: TKeyFn<WithResolvedExt<TVariables>> = defaultKeyFn) {
 
   function useBaseInfiniteQuery<T = U>(variables: WithExtMiddlware<TVariables>, dataFn: TPagesFn<T> = defaultDataFn<T>, options?: UseInfiniteQueryOptions): TInfiniteQueryResults<T> {
-    const __ext = useExtensions<TExtMiddleware, TResolvedExt>(variables.__ext);
+    const __ext = useExtensions(variables.__ext);
 
     const query = useInfiniteQuery({
       queryKey: keyFn({ ...variables, __ext }),
