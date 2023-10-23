@@ -380,20 +380,26 @@ function MyComponent() {
 
 ```tsx
 import { QcProvider } from 'react-qc';
-import { useSearchParams, useParams } from 'react-router-dom';
+import { useSearchParams, useParams, BrowserRouterProvider } from 'react-router-dom';
 
-function useAllMyExtensions() {
+function QcProviderWithExtensions({ children }) {
   const params = useParams();
   const [searchParams] = useSearchParams();
 
-  return { searchParams, params };
+  return (
+    <QcProvider extensions={{ params, searchParams }}>
+      {children}
+    </QcProvider>
+  );
 }
 
 function App() {
   return (
-    <QcProvider useExtensions={useAllMyExtensions}>
-      <MyComponent />
-    </QcProvider>
+    <BrowserRouterProvider>
+      <QcProviderWithExtensions>
+        <MyComponent />
+      </QcProviderWithExtensions>
+    </BrowserRouterProvider>
   );
 }
 ```
@@ -418,7 +424,7 @@ function MyComponent() {
 }
 ```
 
-# Advanced: pass custom keyFn and process extensions before creating the query key
+# Advanced (middleware pattern): pass custom keyFn and process extensions and variables before creating the query key
 
 ```tsx
 import { defineQueryComponent } from 'react-qc';
