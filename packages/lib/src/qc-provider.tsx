@@ -13,9 +13,9 @@ export function useQcDefaults() {
   return useContext(context);
 }
 
-export function QcProvider({ error, loading, extensions, children }: QCDefaultsProviderProps) {
+export function QcProvider({ error, loading, useExtensions, children }: QCDefaultsProviderProps) {
   return (
-    <context.Provider value={{ error, loading, extensions }}>
+    <context.Provider value={{ error, loading, useExtensions }}>
       {children}
     </context.Provider>
   );

@@ -11,7 +11,7 @@ export type QCLoading = ReactNode;
 export type QCDefaultsContext = {
   error: QCError
   loading: QCLoading,
-  extensions?: Record<string, unknown>,
+  useExtensions?: () => Record<string, unknown>,
 };
 
 export type QCDefaultsProviderProps = QCDefaultsContext & { children?: ReactNode };
@@ -34,23 +34,8 @@ export type TRenderQueryResults<T> = (props: TQueryResults<T>) => ReactNode;
 
 export type TRenderInfiniteResults<T> = (props: TInfiniteQueryResults<T>) => ReactNode;
 
-export type TKeyFn<T> = (options: T) => QueryKey;
+export type TKeyFn<T> = (options: T, extensions?: Record<string, unknown>) => QueryKey;
 
 export type TDataFn<T> = (data: unknown) => T;
 
 export type TPagesFn<T> = (data: unknown[]) => T;
-
-export type TResolvedExt = {
-  searchParams: [string, string][];
-  params: Record<string, unknown>;
-};
-
-export type TExtMiddleware = (extensions: TResolvedExt) => TResolvedExt;
-
-export type WithExtMiddlware<TVariables> = TVariables & { 
-  __ext?: TExtMiddleware,
-};
-
-export type WithResolvedExt<TVariables> = TVariables & {
-  __ext: TResolvedExt,
-};
