@@ -7,10 +7,10 @@ import { ReactNode, useMemo } from 'react';
 export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOptions: UseInfiniteQueryOptions, keyFn: TKeyFn<TVariables> = defaultKeyFn) {
 
   function useBaseInfiniteQuery<T = U>(variables: TVariables, dataFn: TPagesFn<T> = defaultDataFn<T>, options?: UseInfiniteQueryOptions): TInfiniteQueryResults<T> {
-    const { useExtensions } = useQcDefaults();
+    const { extensions, useExtensions } = useQcDefaults();
 
     const query = useInfiniteQuery({
-      queryKey: keyFn(variables, useExtensions?.()),
+      queryKey: keyFn(variables, extensions || useExtensions?.()),
       ...defaultOptions,
       ...options,
     });

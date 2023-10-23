@@ -95,7 +95,47 @@ it('setting default error prop is provided', async () => {
   expect(await findByTestId('error-state')).toHaveTextContent('default error...');
 })
 
-it('includes extension into variables when provided', async () => {
+it('passes extensions into keyFn when provided', async () => {
+  const keyFnWithExtensions = ({ _ext, ...variables }, extensions) => {
+    const variablesWithExt = { _ext: _ext(extensions), ...variables };
+
+    return [variablesWithExt];
+  };
+  const MyQueryComponent = defineQueryComponent({
+    queryFn: ({ queryKey }) => {
+      return Promise.resolve(queryKey);
+    },
+  }, keyFnWithExtensions);
+
+  function QcProviderWithRouter({ children }) {
+    const params = useParams();
+    const [searchParams] = useSearchParams();
+
+    return <QcProvider extensions={{ searchParams, params }}>{children}</QcProvider>;
+  }
+
+  const { getByTestId } = render(
+    <QcProviderWithRouter>
+      <MyQueryComponent variables={{ _ext: all(), myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
+        <div data-testid="my-query-component">{JSON.stringify(data)}</div>
+      } />
+      <MyQueryComponent variables={{ _ext: append([['value3', 'value3']]), myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
+        <div data-testid="my-query-component3">{JSON.stringify(data)}</div>
+      } />
+      <MyQueryComponent variables={{ _ext: all(['myProp']), myProp: 'my-key', value1: 'value1', value2: 'value2' }} render={({ data }) => 
+        <div data-testid="my-query-component4">{JSON.stringify(data)}</div>
+      } />
+    </QcProviderWithRouter>
+  , { routerPath: '/?myProp=my-key&value1=value1&value2=value2' });
+
+  await waitFor(() => {
+    expect(getByTestId('my-query-component')).toHaveTextContent('[{"_ext":{"searchParams":[["myProp","my-key"],["value1","value1"],["value2","value2"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
+    expect(getByTestId('my-query-component3')).toHaveTextContent('[{"_ext":{"searchParams":[["myProp","my-key"],["value1","value1"],["value2","value2"],["value3","value3"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
+    expect(getByTestId('my-query-component4')).toHaveTextContent('[{"_ext":{"searchParams":[["myProp","my-key"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
+  });
+});
+
+it('calls useExtensions hook when provided and pass results to keyFn', async () => {
   const keyFnWithExtensions = ({ _ext, ...variables }, extensions) => {
     const variablesWithExt = { _ext: _ext(extensions), ...variables };
 
@@ -129,8 +169,8 @@ it('includes extension into variables when provided', async () => {
   , { routerPath: '/?myProp=my-key&value1=value1&value2=value2' });
 
   await waitFor(() => {
-    // expect(getByTestId('my-query-component')).toHaveTextContent('[{"_ext":{"searchParams":[["myProp","my-key"],["value1","value1"],["value2","value2"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
+    expect(getByTestId('my-query-component')).toHaveTextContent('[{"_ext":{"searchParams":[["myProp","my-key"],["value1","value1"],["value2","value2"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
     expect(getByTestId('my-query-component3')).toHaveTextContent('[{"_ext":{"searchParams":[["myProp","my-key"],["value1","value1"],["value2","value2"],["value3","value3"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
-    // expect(getByTestId('my-query-component4')).toHaveTextContent('[{"_ext":{"searchParams":[["myProp","my-key"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
+    expect(getByTestId('my-query-component4')).toHaveTextContent('[{"_ext":{"searchParams":[["myProp","my-key"]],"params":{}},"myProp":"my-key","value1":"value1","value2":"value2"}]')
   });
 });

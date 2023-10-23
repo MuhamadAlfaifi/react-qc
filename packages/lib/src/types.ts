@@ -11,6 +11,7 @@ export type QCLoading = ReactNode;
 export type QCDefaultsContext = {
   error: QCError
   loading: QCLoading,
+  extensions?: Record<string, unknown>,
   useExtensions?: () => Record<string, unknown>,
 };
 

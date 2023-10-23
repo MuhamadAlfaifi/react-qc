@@ -7,10 +7,10 @@ import { ReactNode, useMemo } from 'react';
 export function defineQueryComponent<TVariables, U = unknown>(defaultOptions: UseQueryOptions, keyFn: TKeyFn<TVariables> = defaultKeyFn) {
 
   function useBaseQuery<T = U>(variables: TVariables, dataFn: TDataFn<T> = defaultDataFn<T>, options?: UseQueryOptions): TQueryResults<T> {
-    const { useExtensions } = useQcDefaults();
+    const { extensions, useExtensions } = useQcDefaults();
 
     const query = useQuery({
-      queryKey: keyFn({ ...variables }, useExtensions?.()),
+      queryKey: keyFn({ ...variables }, extensions || useExtensions?.()),
       ...defaultOptions,
       ...options,
     });

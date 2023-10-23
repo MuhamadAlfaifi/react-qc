@@ -20,7 +20,7 @@ export function all(keys: string[] = []): TExtFn {
   return function ({ searchParams = [], params = {} } = {}) {
     if (keys.length === 0) {
       return { 
-        searchParams, 
+        searchParams: Array.from(searchParams as URLSearchParams | [string, string][]), 
         params 
       };
     }
