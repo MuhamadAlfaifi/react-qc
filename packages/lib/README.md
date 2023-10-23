@@ -382,41 +382,32 @@ function MyComponent() {
 import { QcProvider } from 'react-qc';
 import { useSearchParams, useParams } from 'react-router-dom';
 
+function useAllMyExtensions() {
+  const params = useParams();
+  const [searchParams] = useSearchParams();
+
+  return { searchParams, params };
+}
+
 function App() {
   return (
-    <QcProvider extensions={{ useSearchParams, useParams }}>
+    <QcProvider useExtensions={useAllMyExtensions}>
       <MyComponent />
     </QcProvider>
   );
 }
 ```
 
-# Advanced: read extensions data
-
-```tsx
-import { defineQueryComponent } from 'react-qc';
-
-export const Get = defineQueryComponent({
-  queryFn: async ({ signal, queryKey: [variables] }) => {
-    const search = new URLSearchParams(variables.__ext.searchParams);
-
-    const path = variables.url + '?' + search.toString();
-
-    return await fetch(path, { signal }).then((res) => res.json());
-  }
-});
-```
-
-# Advanced: use extensions middleware function
+# Advanced: pass variables that can process the extensions before creating the query key
 
 ```tsx
 import { Get } from 'path/to/Get';
 import { all } from 'react-qc';
 
-// use `Get` as a component
+// use `all` to create a callback that filters specific parameters from searchParams
 function MyComponent() {
   return (
-    <Get variables={{ url: 'https://randomuser.me/api', __ext: all(['results']) }}>
+    <Get variables={{ url: 'https://randomuser.me/api', myFn: all(['results']) }}>
       {({ data }) => (
         <div>
           {JSON.stringify(data)}
@@ -427,39 +418,26 @@ function MyComponent() {
 }
 ```
 
-# Advanced: use custom extensions middlweware function
+# Advanced: pass custom keyFn and process extensions before creating the query key
 
 ```tsx
-import { Get } from 'path/to/Get';
-import { TExtMiddleware } from 'react-qc';
+import { defineQueryComponent } from 'react-qc';
 
-// custom extensions handler
-function append(key, value): TExtMiddleware {
+const myKeyFn = ({ myFn, ...variables }, extensions) => {
+  const results = myFn(extensions);
   
-  function myMiddleware(extensions) {
-    const searchParams = new URLSearchParams(extensions.searchParams);
+  const variablesWithExtensionsResults = { extResults: results, ...variables };
 
-    searchParams.append(key, value);
+  return [variablesWithExtensionsResults];
+};
 
-    return {
-      searchParams: Array.from(searchParams),
-      params: extensions.params,
-    };
+export const Get = defineQueryComponent({
+  queryFn: async ({ signal, queryKey: [variables] }) => {
+    const search = new URLSearchParams(variables.extResults.searchParams);
+
+    const path = variables.url + '?' + search.toString();
+
+    return await fetch(path, { signal }).then((res) => res.json());
   }
-  
-  return myMiddleware;
-}
-
-// use `Get` as a component
-function MyComponent() {
-  return (
-    <Get variables={{ url: 'https://randomuser.me/api', __ext: append('example', 'value') }}>
-      {({ data }) => (
-        <div>
-          {JSON.stringify(data)}
-        </div>
-      )}
-    </Get>
-  );
-}
+}, myKeyFn);
 ```
