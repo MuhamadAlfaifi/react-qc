@@ -1,6 +1,6 @@
 {
   "name": "react-qc",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "React-QC simplifies the creation of reusable data fetching components",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages/lib",
@@ -10,6 +10,17 @@
     "directory": "packages/lib"
   },
   "license": "MIT",
+  "keywords": [
+    "react",
+    "query",
+    "router",
+    "search",
+    "params",
+    "query params",
+    "components",
+    "data fetching",
+    "data fetching components"
+  ],
   "files": [
     "dist",
     "README.md"
