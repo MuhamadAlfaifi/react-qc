@@ -10,20 +10,18 @@ export function defineQueryComponent<TVariables, U = unknown>(defaultOptions: Us
     const { extensions, useExtensions } = useQcDefaults();
 
     const query = useQuery({
-      queryKey: keyFn({ ...variables }, extensions || useExtensions?.()),
+      queryKey: keyFn(variables, extensions || useExtensions?.()),
       ...defaultOptions,
       ...options,
     });
 
     const data = useMemo<T>(() => {
-      // @ts-expect-error
-      if (query.isLoading || query.isPending) {
-        return undefined as unknown as T;
+      if (query.data) {
+        return dataFn(query.data) as T;
       }
       
-      return dataFn?.(query.data) || query.data as T;
-      // @ts-expect-error
-    }, [query.data, dataFn, query.isLoading, query.isPending]);
+      return undefined as unknown as T;
+    }, [query.data, dataFn]);
 
     return { data, query };
   }

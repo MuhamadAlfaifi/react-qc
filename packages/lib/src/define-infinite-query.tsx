@@ -16,14 +16,12 @@ export function defineInfiniteQueryComponent<TVariables, U = unknown>(defaultOpt
     });
 
     const data = useMemo<T>(() => {
-      // @ts-expect-error
-      if (query.isLoading || query.isPending) {
-        return undefined as unknown as T;
+      if (query.data?.pages) {
+        return dataFn(query.data.pages) as T;
       }
       
-      return dataFn?.(query.data?.pages || []) || query.data as T;
-      // @ts-expect-error
-    }, [query.data, dataFn, query.isLoading, query.isPending]);
+      return [] as unknown as T;
+    }, [query.data, dataFn]);
 
     return { data, query };
   }
