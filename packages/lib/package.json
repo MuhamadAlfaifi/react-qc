@@ -1,6 +1,6 @@
 {
   "name": "react-qc",
-  "version": "1.3.1",
+  "version": "1.3.3",
   "description": "React-QC simplifies the creation of reusable data fetching components",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages/lib",

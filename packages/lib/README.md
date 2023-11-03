@@ -1,3 +1,26 @@
+# Welcome to react-qc 👋
+
+[![Version](https://img.shields.io/npm/v/react-qc.svg)](https://www.npmjs.com/package/react-qc)
+[![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](#table-of-contents)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/MuhamadAlfaifi/react-qc/graphs/commit-activity)
+
+```javascript
+const names = (data: unknown) => data?.results?.map((item) => item.name) || [];
+
+<Catch error={<p>an error occured!</p>}>
+  <Get variables={{ path: 'https://randomuser.me/api', ...searchParams() }} loading={<p>loading...</p>} data={names}>
+    {({ data }: TQueryResults) => (
+      <ul>
+        {data.map(name => 
+          <li key={name}>{name}</li>
+        )}
+      </ul>
+    )}
+  </Get>
+</Catch>
+```
+
+
 # Table of Contents
 
 - [Installation](#installation)
@@ -14,9 +37,8 @@
 - [Use infinite query](#use-infinite-query)
 - [Use infinite query with custom data function](#use-infinite-query-with-custom-data-function)
 - [Advanced: add extensions](#advanced-add-extensions)
-- [Advanced: read extensions](#advanced-read-extensions)
-- [Advanced: use extensions](#advanced-use-extensions)
-- [Advanced: custom extensions handler](#advanced-custom-extensions-handler)
+- [Advanced: pass variables that can process the extensions before creating the query key](#advanced-pass-variables-that-can-process-the-extensions-before-creating-the-query-key)
+- [Advanced: pass custom keyFn and process extensions and variables before creating the query key](#advanced-pass-custom-keyfn-and-process-extensions-and-variables-before-creating-the-query-key)
 
 
 # Installation
@@ -404,6 +426,9 @@ function App() {
 }
 ```
 
+note: extensions are passed to the keyFn so you need to implement a keyFn for accessing the extensions
+note: when using <RouterProvider router={router}> and you still want to use searchPrams and params instead of extensions prop there is also useExtensions prop that is the custom hook that returns the extensions.
+
 # Advanced: pass variables that can process the extensions before creating the query key
 
 ```tsx
@@ -424,7 +449,7 @@ function MyComponent() {
 }
 ```
 
-# Advanced (middleware pattern): pass custom keyFn and process extensions and variables before creating the query key
+# Advanced: pass custom keyFn and process extensions and variables before creating the query key
 
 ```tsx
 import { defineQueryComponent } from 'react-qc';
