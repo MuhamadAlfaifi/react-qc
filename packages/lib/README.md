@@ -1,5 +1,7 @@
 # Welcome to react-qc 👋
 
+Quick and easy data fetching tool for Single Page Applications
+
 [![Version](https://img.shields.io/npm/v/react-qc.svg)](https://www.npmjs.com/package/react-qc)
 [![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](#table-of-contents)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/MuhamadAlfaifi/react-qc/graphs/commit-activity)
@@ -19,6 +21,12 @@ const names = (data: unknown) => data?.results?.map((item) => item.name) || [];
   </Get>
 </Catch>
 ```
+
+## Features
+- typescript support
+- ui support for loading and error
+- TODO:: url search params helpers automatically
+- suspense-like experiece without losing the ability to cancel queries
 
 
 # Table of Contents
@@ -323,7 +331,7 @@ function MyComponent() {
 
 // use `PaginatedGet` as a hook
 function MyComponent() {
-  const { data, query: { fetchNextPage, hasNextPage } }: TInfiniteQueryResults<uknown> = PaginatedGet.useInfiniteQuery({ 
+  const { data, fetchNextPage, hasNextPage }: TInfiniteQueryResults<uknown> = PaginatedGet.useInfiniteQuery({ 
     url: 'https://randomuser.me/api', 
     search: { results: 10 } 
   });
@@ -364,7 +372,7 @@ export function pagesNames(pages: unknown): TName[] {
 function MyComponent() {
   return (
     <PaginatedGet variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }} data={pagesNames}>
-      {({ data, query: { fetchNextPage, hasNextPage } }) => (
+      {({ data, fetchNextPage, hasNextPage }) => (
         <div>
           <ul>
             {data.map((name, index) => (
@@ -380,7 +388,7 @@ function MyComponent() {
 
 // pass data function parameter
 function MyComponent() {
-  const { data, query: { fetchNextPage, hasNextPage } }: TInfiniteQueryResults<TName[]> = PaginatedGet.useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage }: TInfiniteQueryResults<TName[]> = PaginatedGet.useInfiniteQuery({
     url: 'https://randomuser.me/api',
     search: { results: 10 }
   }, pagesNames);
