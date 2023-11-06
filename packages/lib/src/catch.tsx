@@ -11,7 +11,7 @@ export function Catch({ error, children }: TCatchProps) {
 
   return (
     <QueryErrorResetBoundary>
-      {({ reset }) => (
+      {({ reset }: any) => (
         <ErrorBoundary onReset={reset} fallbackRender={fallbackRender}>
           {children}
         </ErrorBoundary>

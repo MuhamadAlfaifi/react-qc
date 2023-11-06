@@ -21,15 +21,9 @@ export type TCatchProps = { error?: QCError, children?: ReactNode };
 
 export type QueryStatusWithPending = QueryStatus | 'pending';
 
-export type TQueryResults<T> = {
-  data: T,
-  query: UseQueryResult,
-}
+export type TQueryResults<T> = Omit<UseQueryResult, 'data'> & { data: T };
 
-export type TInfiniteQueryResults<T> = {
-  data: T,
-  query: UseInfiniteQueryResult,
-}
+export type TInfiniteQueryResults<T> = Omit<UseInfiniteQueryResult, 'data'> & { data: T };
 
 export type TRenderQueryResults<T> = (props: TQueryResults<T>) => ReactNode;
 

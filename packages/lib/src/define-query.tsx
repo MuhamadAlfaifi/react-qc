@@ -23,7 +23,7 @@ export function defineQueryComponent<TVariables, U = unknown>(defaultOptions: Us
       return undefined as unknown as T;
     }, [query.data, dataFn]);
 
-    return { data, query };
+    return { ...query, data };
   }
 
   function Component<T = U>(
@@ -37,7 +37,7 @@ export function defineQueryComponent<TVariables, U = unknown>(defaultOptions: Us
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
     const finalLoading = loading || defaultLoading;
     
-    const status = results.query.status as QueryStatusWithPending;
+    const status = results.status as QueryStatusWithPending;
     
     if (finalHasLoading && (status === 'loading' || status === 'pending')) {
       return finalLoading;
