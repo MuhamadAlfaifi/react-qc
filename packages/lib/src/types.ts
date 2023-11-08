@@ -1,4 +1,4 @@
-import type { QueryKey, QueryStatus, UseInfiniteQueryResult, UseQueryResult } from '@tanstack/react-query';
+import type { InfiniteData, QueryKey, QueryStatus, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 
@@ -21,16 +21,18 @@ export type TCatchProps = { error?: QCError, children?: ReactNode };
 
 export type QueryStatusWithPending = QueryStatus | 'pending';
 
-export type TQueryResults<T> = Omit<UseQueryResult, 'data'> & { data: T };
+export type TQueryOptions<T = unknown> = Omit<Partial<UseQueryOptions>, 'select'> & { select?: (data: any) => T };
 
-export type TInfiniteQueryResults<T> = Omit<UseInfiniteQueryResult, 'data'> & { data: T };
+export type TQueryResults<T = unknown> = Omit<UseQueryResult<unknown, unknown>, 'data'> & { data: T };
 
 export type TRenderQueryResults<T> = (props: TQueryResults<T>) => ReactNode;
+
+export type TInfiniteQueryResults<T = unknown> = Omit<UseInfiniteQueryResult, 'data'> & { data: T };
+
+export type TInfiniteQueryOptions<T = unknown> = Omit<Partial<UseInfiniteQueryOptions>, 'select'> & { select?: (data: InfiniteData<any>) => T };
 
 export type TRenderInfiniteResults<T> = (props: TInfiniteQueryResults<T>) => ReactNode;
 
 export type TKeyFn<T> = (options: T, extensions?: Record<string, unknown>) => QueryKey;
 
-export type TDataFn<T> = (data: unknown) => T;
-
-export type TPagesFn<T> = (data: unknown[]) => T;
+export type TDataFn<T> = (data: any) => T;

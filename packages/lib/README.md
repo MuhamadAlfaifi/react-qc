@@ -1,20 +1,22 @@
 # Welcome to react-qc 👋
 
-Quick and easy data fetching tool for Single Page Applications
+Lightweight @tanstack/react-query wrapper that provides error/loading and searchParams() helper
 
 [![Version](https://img.shields.io/npm/v/react-qc.svg)](https://www.npmjs.com/package/react-qc)
 [![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](#table-of-contents)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/MuhamadAlfaifi/react-qc/graphs/commit-activity)
 
 ```javascript
-const names = (data: unknown) => data?.results?.map((item) => item.name) || [];
+type TName = { title: string, first: string, last: string }
+
+const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
 
 <Catch error={<p>an error occured!</p>}>
-  <Get variables={{ path: 'https://randomuser.me/api', ...searchParams() }} loading={<p>loading...</p>} data={names}>
-    {({ data }: TQueryResults) => (
+  <Get variables={{ path: 'https://randomuser.me/api', ...searchParams() }} loading={<p>loading...</p>} select={names}>
+    {({ data }) => (
       <ul>
         {data.map(name => 
-          <li key={name}>{name}</li>
+          <li key={name}>{name.first} - {name.last}</li>
         )}
       </ul>
     )}
@@ -23,10 +25,10 @@ const names = (data: unknown) => data?.results?.map((item) => item.name) || [];
 ```
 
 ## Features
-- typescript support
+- typescript inference support
 - ui support for loading and error
-- TODO:: url search params helpers automatically
-- suspense-like experiece without losing the ability to cancel queries
+- searchParams() add/pluck/append from url into queryKey variables
+- suspense-like experiece without losing the ability to cancel queries when the component is unmounted
 
 
 # Table of Contents
@@ -93,7 +95,7 @@ function MyComponent() {
 
 // use `Get` as a hook
 function MyComponent() {
-  const { data }: TQueryResults<uknown> = Get.useQuery();
+  const { data }: TQueryResults<uknown> = Get.use();
 
   return (
     <div>
@@ -210,7 +212,7 @@ function MyComponent() {
 
 // use `Get` as a hook
 function MyComponent() {
-  const { data }: TQueryResults<uknown> = Get.useQuery({ 
+  const { data }: TQueryResults<uknown> = Get.use({ 
     url: 'https://randomuser.me/api', 
     search: { results: 10 } 
   });
@@ -262,7 +264,7 @@ function names(data: unknown): TName[] {
 // pass data function prop
 function MyComponent() {
   return (
-    <Get variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }} data={names}>
+    <Get variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }} select={names}>
       {({ data }) => (
         <div>
           {JSON.stringify(data)}
@@ -274,10 +276,10 @@ function MyComponent() {
 
 // pass data function parameter
 function MyComponent() {
-  const { data }: TQueryResults<TName[]> = Get.useQuery({ 
+  const { data }: TQueryResults<TName[]> = Get.use({ 
     url: 'https://randomuser.me/api', 
     search: { results: 10 } 
-  }, names);
+  }, { select: names });
   
   return (
     <div>
@@ -319,7 +321,7 @@ import { PaginatedGet } from 'path/to/PaginatedGet';
 function MyComponent() {
   return (
     <PaginatedGet variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }}>
-      {({ data, query: { fetchNextPage, hasNextPage } }) => (
+      {({ data, fetchNextPage, hasNextPage }) => (
         <div>
           <div>{JSON.stringify(data)}</div>
           <button onClick={fetchNextPage} disabled={!hasNextPage}>fetch next page</button>
@@ -331,7 +333,7 @@ function MyComponent() {
 
 // use `PaginatedGet` as a hook
 function MyComponent() {
-  const { data, fetchNextPage, hasNextPage }: TInfiniteQueryResults<uknown> = PaginatedGet.useInfiniteQuery({ 
+  const { data, fetchNextPage, hasNextPage }: TInfiniteQueryResults<uknown> = PaginatedGet.use({ 
     url: 'https://randomuser.me/api', 
     search: { results: 10 } 
   });
@@ -371,7 +373,7 @@ export function pagesNames(pages: unknown): TName[] {
 // pass data function prop
 function MyComponent() {
   return (
-    <PaginatedGet variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }} data={pagesNames}>
+    <PaginatedGet variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }} select={pagesNames}>
       {({ data, fetchNextPage, hasNextPage }) => (
         <div>
           <ul>
@@ -388,10 +390,10 @@ function MyComponent() {
 
 // pass data function parameter
 function MyComponent() {
-  const { data, fetchNextPage, hasNextPage }: TInfiniteQueryResults<TName[]> = PaginatedGet.useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage }: TInfiniteQueryResults<TName[]> = PaginatedGet.use({
     url: 'https://randomuser.me/api',
     search: { results: 10 }
-  }, pagesNames);
+  }, { select: pagesNames });
 
   return (
     <div>

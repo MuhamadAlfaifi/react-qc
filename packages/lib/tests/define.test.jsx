@@ -27,7 +27,7 @@ it('passes query component props to queryFn', async () => {
   expect(MyQueryComponent).toBeDefined();
 
   function MyQueryHook() {
-    const { data } = MyQueryComponent.useQuery({ myProp: 'my-key-lajksdf', value1: 'value1-jioajsdf', value2: 'value2-joifds' });
+    const { data } = MyQueryComponent.use({ myProp: 'my-key-lajksdf', value1: 'value1-jioajsdf', value2: 'value2-joifds' });
     return <div data-testid="my-query-hook">{JSON.stringify(data)}</div>;
   }
 
