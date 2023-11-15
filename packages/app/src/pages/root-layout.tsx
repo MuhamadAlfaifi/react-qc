@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { Get, PaginatedGet } from '../api/queries';
-import { Catch, searchOnly } from 'react-qc';
+import { Catch, TDataFn } from 'react-qc';
+import { InfiniteData, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 
 type TName = {
   title: string;
@@ -20,8 +21,8 @@ export function name(data: unknown): TName {
   return (data as { results: TItem[] })?.results?.[0]?.name || { title: '', first: '', last: '' };
 }
 
-export function pagesNames(pages: unknown[]): TName[] {
-  return (pages as unknown[])?.flatMap((page) => names(page)) || [];
+export const pagesNames = (data: InfiniteData<TName>): TName[] => {
+  return data?.pages?.flatMap((page: any) => names(page)) || [];
 }
 
 function SearchTab({ children, name = 'tab', value }: { children: React.ReactNode, name?: string, value: string }) {
@@ -39,14 +40,53 @@ function TabLink({ children, name = 'tab', value }: { children: React.ReactNode,
   const [searchParams] = useSearchParams();
   const index = searchParams.get(name) || '0';
 
+  searchParams.set(name, value);
+
   return (
-    <Link to={`?${name}=${value}`} className={`px-2 py-1 rounded-md ${value === index ? 'bg-gray-200' : 'bg-white'}`}>
+    <Link to={`?${searchParams.toString()}`} className={`px-2 py-1 rounded-md ${value === index ? 'bg-gray-200' : 'bg-white'}`}>
       {children}
     </Link>
   );
 }
 
+type TUseInitialQueryOptions<T = unknown> = Omit<Partial<UseInfiniteQueryOptions>, 'select'> & { select?: (data: InfiniteData<any, unknown>) => T };
+type TInfiniteQueryResults<T = unknown> = Omit<UseInfiniteQueryResult<unknown, unknown>, 'data'> & { data: T };
+
+type TQueryOptions<T = unknown> = Omit<Partial<UseQueryOptions>, 'select'> & { select?: (data: any) => T };
+type TQueryResults<T = unknown> = Omit<UseQueryResult<unknown, unknown>, 'data'> & { data: T };
+
+function useIt<T>({ select }: TUseInitialQueryOptions<T>) {
+  return useInfiniteQuery({
+    queryKey: ['lol'],
+    select,
+    queryFn: () => Promise.resolve({ name: 'hi', age: 10 }),
+    getNextPageParam: (lastPage, pages) => pages.length,
+    initialPageParam: 0,
+  }) as TInfiniteQueryResults<T>;
+}
+
+const concatenated = (data: InfiniteData<{ name: string, age: number }>): string[] => [data.pages[0].name, data.pages[1].name];
+
+const theName = (data: { name: string, age: number }): string => data.name;
+
 export default function RootLayoutPage() {
+  const lol = useIt({ select: concatenated });
+  const a = useInfiniteQuery({
+    queryKey: ['lol'],
+    queryFn: () => Promise.resolve({ name: 'hi', age: 10 }),
+    getNextPageParam: (lastPage, pages) => pages.length,
+    initialPageParam: 0,
+  });
+
+  useQuery({
+    queryKey: ['lol'],
+    select: theName,
+    queryFn: () => Promise.resolve({ name: 'hi', age: 10 }),
+  });
+
+  const aData = a.data;
+  const lolData = lol.data;
+
   return (
     <div className="grid grid-cols-12 w-full max-w-4xl mx-auto py-10 gap-10">
       <nav className="col-span-3 border-r">
@@ -80,6 +120,10 @@ export default function RootLayoutPage() {
           </ul>
         </SearchTab>
         <SearchTab value="1">
+          <TabLink name="subt" value="0">static</TabLink>
+          <TabLink name="subt" value="1">dynamic</TabLink>
+
+          <SearchTab name="subt" value="0">
           <h2 className="font-bold text-xl">Define new query</h2>
           <pre className="language-tsx">
             <code>
@@ -123,6 +167,23 @@ function MyComponent() {
 }`}
             </code>
           </pre>
+          </SearchTab>
+          <SearchTab name="subt" value="1">
+            <Catch error="lol">
+              <PaginatedGet variables={{ url: 'https://randomuser.me/api?results=10', initialPageParam: 0 }} select={pagesNames}>
+                {({ data, fetchNextPage, hasNextPage }) => (
+                  <div>
+                    <ul>
+                      {data.map((name, index) => (
+                        <li key={index}>{name.first} {name.last}</li>
+                      ))}
+                    </ul>
+                    <li><button onClick={() => fetchNextPage()} disabled={!hasNextPage}>fetch next page</button></li>
+                  </div>
+                )}
+              </PaginatedGet>
+            </Catch>
+          </SearchTab>
         </SearchTab>
         <SearchTab value="2">
           <h2 className="font-bold text-xl">set custom loading/error</h2>

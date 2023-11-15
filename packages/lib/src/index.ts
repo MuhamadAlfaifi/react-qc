@@ -1,6 +1,7 @@
 export type * from './types';
 export * from './qc-provider';
-export * from './define-query';
-export * from './define-infinite-query';
 export * from './catch';
 export * from './utils';
+export * from './router-key-fn';
+export * from './wrap';
+export * from './wrap-extended';
