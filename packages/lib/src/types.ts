@@ -1,4 +1,4 @@
-import type { InfiniteData, QueryKey, QueryStatus, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
+import type { InfiniteData, QueryKey, QueryStatus, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 
@@ -36,3 +36,25 @@ export type TRenderInfiniteResults<T> = (props: TInfiniteQueryResults<T>) => Rea
 export type TKeyFn<T> = (options: T, extensions?: Record<string, unknown>) => QueryKey;
 
 export type TDataFn<T> = (data: any) => T;
+
+export type TBodyFn<T> = (...args: any[]) => T;
+
+export type IBody<T> = T | TBodyFn<T>;
+
+export type TRequestVariables<T> = [string, IBody<T>];
+
+// ------------------------------
+
+export type TOptions<T = unknown, U = never> = U extends UseInfiniteQueryOptions 
+  ? Omit<Partial<UseInfiniteQueryOptions>, 'select'> & { select?: (data: InfiniteData<any>) => T, initialPageParam: any } 
+  : Omit<Partial<UseQueryOptions>, 'select'> & { select?: (data: any) => T }
+
+export type TResults<T = unknown, U = never> = U extends UseInfiniteQueryResult
+  ? Omit<UseInfiniteQueryResult, 'data'> & { data: T }
+  : Omit<UseQueryResult<unknown, unknown>, 'data'> & { data: T }
+
+export type TRenderResults<T, U = never> = (props: TResults<T, U>) => ReactNode;
+
+export type TUseQueryHook = typeof useQuery;
+
+export type TUseInfiniteQueryHook = typeof useInfiniteQuery;

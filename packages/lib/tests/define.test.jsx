@@ -1,30 +1,31 @@
 import { waitFor } from '@testing-library/react';
 import { render } from './shared';
-import { defineQueryComponent } from '../src/define-query';
-import { defineInfiniteQueryComponent } from '../src/define-infinite-query';
 import { QcProvider, useQcDefaults } from '../src/qc-provider';
 import React from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { all, append } from '../src/utils';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { wrap } from '../src/wrap';
+import { wrapExtended } from '../src/wrap-extended';
 
 it('does not fail when creating query component', () => {
   const queryFn = () => Promise.resolve(10);
 
-  defineQueryComponent({ queryFn });
+  wrap(useQuery, { queryFn });
   
   const keyFn = ({ myProp = 'my-key', myProps = { value1: 'value1', value2: 'value2' } }) => [myProp, myProps];
   
-  defineQueryComponent({ queryFn }, keyFn);
-  defineInfiniteQueryComponent({ queryFn }, keyFn);
+  wrap(useQuery, { queryFn }, keyFn);
+  wrap(useInfiniteQuery, { queryFn }, keyFn);
 })
 
 it('passes query component props to queryFn', async () => {
   const keyFn = (variables) => [variables];
   const queryFn = ({ queryKey }) => Promise.resolve(queryKey);
 
-  const MyQueryComponent = defineQueryComponent({ queryFn }, keyFn);
+  const MyQueryComponent = wrap(useQuery, { queryFn }, keyFn);
 
-  expect(MyQueryComponent).toBeDefined();
+  expect(MyQueryComponent).toBewrap();
 
   function MyQueryHook() {
     const { data } = MyQueryComponent.use({ myProp: 'my-key-lajksdf', value1: 'value1-jioajsdf', value2: 'value2-joifds' });
@@ -48,7 +49,7 @@ it('passes query component props to queryFn', async () => {
 })
 
 it('query component shows default loading provided via QcProvider', async () => {
-  const MyQueryComponent = defineQueryComponent({
+  const MyQueryComponent = wrapExtended(useQuery, {
     queryFn: () => {
       return new Promise(resolve => setTimeout(() => resolve(0), 300));
     },
@@ -64,7 +65,7 @@ it('query component shows default loading provided via QcProvider', async () => 
 })
 
 it('query component can override default loading element', async () => {
-  const MyQueryComponent = defineQueryComponent({
+  const MyQueryComponent = wrapExtended(useQuery, {
     queryFn: () => {
       return new Promise(resolve => setTimeout(() => resolve(0), 300));
     },
@@ -101,7 +102,7 @@ it('passes extensions into keyFn when provided', async () => {
 
     return [variablesWithExt];
   };
-  const MyQueryComponent = defineQueryComponent({
+  const MyQueryComponent = wrapExtended(useQuery, {
     queryFn: ({ queryKey }) => {
       return Promise.resolve(queryKey);
     },
@@ -141,7 +142,7 @@ it('calls useExtensions hook when provided and pass results to keyFn', async () 
 
     return [variablesWithExt];
   };
-  const MyQueryComponent = defineQueryComponent({
+  const MyQueryComponent = wrapExtended(useQuery, {
     queryFn: ({ queryKey }) => {
       return Promise.resolve(queryKey);
     },
