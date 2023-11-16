@@ -45,11 +45,13 @@ export type TRequestVariables<T> = [string, IBody<T>];
 
 // ------------------------------
 
-export type TOptions<T = unknown, U = never> = U extends UseInfiniteQueryOptions 
+export type UseOptions<T = never> = T extends typeof useInfiniteQuery ? UseInfiniteQueryOptions : UseQueryOptions;
+
+export type TOptions<T = unknown, U = never> = U extends typeof useInfiniteQuery 
   ? Omit<Partial<UseInfiniteQueryOptions>, 'select'> & { select?: (data: InfiniteData<any>) => T, initialPageParam: any } 
   : Omit<Partial<UseQueryOptions>, 'select'> & { select?: (data: any) => T }
 
-export type TResults<T = unknown, U = never> = U extends UseInfiniteQueryResult
+export type TResults<T = unknown, U = never> = U extends typeof useInfiniteQuery
   ? Omit<UseInfiniteQueryResult, 'data'> & { data: T }
   : Omit<UseQueryResult<unknown, unknown>, 'data'> & { data: T }
 
