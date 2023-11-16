@@ -4,7 +4,7 @@ import { QueryStatusWithPending, TRenderResults, TOptions, TResults } from './ty
 import { defaultKeyFn } from './utils';
 import { ReactNode } from 'react';
 
-export function wrapExtended<TVariables, U = unknown, K = unknown>(hook: typeof useQuery | typeof useInfiniteQuery, defaultOptions: TOptions<U, K>, keyFn: any = defaultKeyFn) {
+export function wrapExtended<TVariables extends [unknown, unknown], U = unknown, K = unknown>(hook: typeof useQuery | typeof useInfiniteQuery, defaultOptions: TOptions<U, K>, keyFn: any = defaultKeyFn) {
 
   function useKeyFn(variables: TVariables) {
     const { extensions, useExtensions } = useQcDefaults();
@@ -22,12 +22,12 @@ export function wrapExtended<TVariables, U = unknown, K = unknown>(hook: typeof 
   }
 
   function Component<UU = U, KK = K>(
-    { variables = ({} as TVariables), hasLoading, loading, client, render, children, ...options }: 
-    { variables: TVariables, hasLoading?: boolean, loading?: ReactNode, client?: QueryClient, render?: TRenderResults<UU, KK>, children?: TRenderResults<UU, KK> } & TOptions<UU, KK>
+    { path = (undefined as TVariables[0]), body = (undefined as TVariables[1]), hasLoading, loading, client, render, children, ...options }: 
+    { path?: TVariables[0], body?: TVariables[1], hasLoading?: boolean, loading?: ReactNode, client?: QueryClient, render?: TRenderResults<UU, KK>, children?: TRenderResults<UU, KK> } & TOptions<UU, KK>
   ) {
     const { loading: defaultLoading } = useQcDefaults();
 
-    const results = use(variables, { throwOnError: true, ...options } as unknown as TOptions<UU, KK>, client);
+    const results = use([path, body] as TVariables, { throwOnError: true, ...options } as unknown as TOptions<UU, KK>, client);
 
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
     const finalLoading = loading || defaultLoading;

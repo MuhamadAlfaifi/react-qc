@@ -1,6 +1,6 @@
 {
   "name": "react-qc",
-  "version": "1.7.0-wrap",
+  "version": "1.7.1-wrap",
   "description": "React-QC wraps react-query hooks with loading, error, and more...",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages/lib",
