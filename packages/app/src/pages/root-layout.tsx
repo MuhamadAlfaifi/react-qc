@@ -1,7 +1,7 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { InfiniteData } from '@tanstack/react-query';
 import { Catch } from 'react-qc';
-import { Get, MyService, Post } from '../api/queries';
+import { Get, MyQuery, Post, Resource } from '../api/queries';
 
 type TName = {
   title: string;
@@ -351,6 +351,8 @@ function MyComponent() {
 
         </SearchTab>
         <SearchTab value="5">
+          <TabLink name="subt" value="0">static</TabLink>
+          <TabLink name="subt" value="1">live</TabLink>
           <SearchTab name="subt" value="0">
             <h2 className="font-bold text-xl">Pagination</h2>
             <pre className="language-tsx">
@@ -414,7 +416,7 @@ function MyComponent() {
             <h2 className="font-bold text-xl mt-10">use infinite query with custom data function</h2>
             <pre className="language-tsx">
               <code>
-                {`import { MyService } from 'path/to/MyService';
+                {`import { Resource } from 'path/to/Resource';
 
   type TName = {
     title: string;
@@ -437,8 +439,8 @@ function MyComponent() {
   // pass data function prop
   function MyComponent() {
     return (
-      <MyService variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }} data={pagesNames}>
-        {({ data, query: { fetchNextPage, hasNextPage } }) => (
+      <Resource variables={['https://randomuser.me/api', { results: 10 }]} select={pagesNames}>
+        {({ data, fetchNextPage, hasNextPage }) => (
           <div>
             <ul>
               {data.map((name, index) => (
@@ -448,16 +450,13 @@ function MyComponent() {
             <li><button onClick={fetchNextPage} disabled={!hasNextPage}>fetch next page</button></li>
           </div>
         )}
-      </MyService>
+      </Resource>
     );
   }
 
   // pass data function parameter
   function MyComponent() {
-    const { data, query: { fetchNextPage, hasNextPage } }: TInfiniteQueryResults<TName[]> = MyService.useInfiniteQuery({
-      url: 'https://randomuser.me/api',
-      search: { results: 10 }
-    }, pagesNames);
+    const { data, fetchNextPage, hasNextPage } = Resource.useInfiniteQuery(['https://randomuser.me/api', { results: 10 }], { select: pagesNames });
 
     return (
       <div>
@@ -474,26 +473,39 @@ function MyComponent() {
             </pre>
           </SearchTab>
           <SearchTab name="subt" value="1">
-            <MyService variables={['https://randomuser.me/api', { results: 10 }]} select={pagesNames}>
-              {({ data, fetchNextPage, hasNextPage }) => (
-                <div>
-                  <div>{JSON.stringify(data)}</div>
-                  <button onClick={() => fetchNextPage()} disabled={!hasNextPage}>fetch next page</button>
-                </div>
-              )}
-            </MyService>
+            <Catch>
+              <Resource variables={['https://randomuser.me/api', { results: 10 }]} select={pagesNames}>
+                {({ data, fetchNextPage, hasNextPage }) => (
+                  <div>
+                    <div>{JSON.stringify(data)}</div>
+                    <button onClick={() => fetchNextPage()} disabled={!hasNextPage}>fetch next page</button>
+                  </div>
+                )}
+              </Resource>
+            </Catch>
           </SearchTab>
         </SearchTab>
         <SearchTab value="6">
+          <TabLink name="subt" value="0">static</TabLink>
+          <TabLink name="subt" value="1">live</TabLink>
+          <SearchTab name="subt" value="0">
           <h2 className="font-bold text-xl">Advanced: add extensions</h2>
           <pre className="language-tsx">
             <code>
               {`import { QcProvider } from 'react-qc';
 import { useSearchParams, useParams } from 'react-router-dom';
 
+function useExtensions() {
+  const params = useParams();
+  const [searchParams] = useSearchParams();
+
+  return { params, searchParams };
+}
+
 function App() {
+  const extensions = useExtensions();
   return (
-    <QcProvider extensions={{ useSearchParams, useParams }}>
+    <QcProvider extensions={extensions}> // Alternatively, pass hook directly like useExtensions={useExtensions} instead of extensions prop for similar result
       <MyComponent />
     </QcProvider>
   );
@@ -504,45 +516,46 @@ function App() {
           <h2 className="font-bold text-xl mt-10">advanced: read extensions</h2>
           <pre className="language-tsx">
             <code>
-              {`import { defineQueryComponent } from 'react-qc';
+              {`import { wrapWithExtensions, routerKeyFn } from 'react-qc';
+import { useQuery } from '@tanstack/react-query';
 
-export const Get = defineQueryComponent({
-  queryFn: async ({ signal, queryKey: [variables] }) => {
-    const search = new URLSearchParams(variables.__use.searchParams);
+export const MyQuery = wrapWithExtensions(useQuery, {
+  queryFn: async ({ signal, queryKey: [path, body] }) => {
+    if (!body) {
+      return await fetch(path, { signal }).then((res) => res.json());
+    }
 
-    const path = variables.url + '?' + search.toString();
-
-    return await fetch(path, { signal }).then((res) => res.json());
+    return await fetch(path, {
+      method: 'post',
+      body: JSON.stringify(body),
+      signal
+    }).then((res) => res.json());
   }
-});`}
+}, routerKeyFn);`}
             </code>
           </pre>
 
           <h2 className="font-bold text-xl mt-10">advanced: use extensions</h2>
           <pre className="language-tsx">
             <code>
-              {`import { Get } from 'path/to/Get';
-import { searchOnly } from 'react-qc';
+              {`import { MyQuery } from 'path/to/MyQuery';
 
-// use \`Get\` as a component
+// use \`MyQuery\` as a component
 function MyComponent() {
   return (
-    <Get variables={{ url: 'https://randomuser.me/api', __use: searchOnly(['results']) }}>
+    <MyQuery path={({ searchParams }) => \`https://randomuser.me/api?results=\${searchParams.get('results') || '10'}\`}> // first-party routerKeyFn allows to pass a callback function that will be called with extensions as parameter
       {({ data }) => (
         <div>
           {JSON.stringify(data)}
         </div>
       )}
-    </Get>
+    </MyQuery>
   );
 }
 
-// use \`Get\` as a hook
+// use \`MyQuery\` as a hook
 function MyComponent() {
-  const { data }: TQueryResults<uknown> = Get.useQuery({
-    url: 'https://randomuser.me/api',
-    __use: searchOnly(['results'])
-  });
+  const { data } = MyQuery.use([({ searchParams }) => \`https://randomuser.me/api?results=\${searchParams.get('results') || '10'}\`]); // first-party routerKeyFn allows to pass a callback function that will be called with extensions as parameter
 
   return (
     <div>
@@ -553,38 +566,23 @@ function MyComponent() {
             </code>
           </pre>
 
-          <h2 className="font-bold text-xl mt-10">advanced: custom extensions handler</h2>
-          <pre className="language-tsx">
-            <code>
-              {`import { Get } from 'path/to/Get';
-
-// custom extensions handler
-function append(key, value) {
-  return (extensions) => {
-  const searchParams = new URLSearchParams(extensions.searchParams);
-
-  searchParams.append(key, value);
-
-  return {
-    searchParams: Array.from(searchParams),
-    params: extensions.params,
-  };
-}
-
-// use \`Get\` as a component
-function MyComponent() {
-  return (
-    <Get variables={{ url: 'https://randomuser.me/api', __use: append('example', 'value') }}>
-      {({ data }) => (
-        <div>
-          {JSON.stringify(data)}
-        </div>
-      )}
-    </Get>
-  );
-}`}
-            </code>
-          </pre>
+          <h2 className="font-bold text-xl mt-10">Advanced: customize</h2>
+          <p>Note that if your use case can be achieved with just use-ing' and building the variables without keyFn or extensions you should do so, extensions and is a way to customize queryKey array creation and also access any global extensions if using wrapWithExtensions</p>
+          </SearchTab>
+          <SearchTab name="subt" value="1">
+            <Link to="?tab=6&subt=1&results=10">10 results</Link>
+            <Link to="?tab=6&subt=1&results=20">20 results</Link>
+            <Link to="?tab=6&subt=1&results=30">30 results</Link>
+            <Catch>
+              <MyQuery path={({ searchParams }: any) => `https://randomuser.me/api?results=${searchParams.get('results') || 10}`}>
+                {({ data }) => (
+                  <div>
+                    {JSON.stringify(data)}
+                  </div>
+                )}
+              </MyQuery>
+            </Catch>
+          </SearchTab>
         </SearchTab>
       </main>
     </div>

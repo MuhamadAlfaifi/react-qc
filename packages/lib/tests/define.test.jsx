@@ -6,7 +6,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { all, append } from '../src/utils';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import { wrap } from '../src/wrap';
-import { wrapExtended } from '../src/wrap-extended';
+import { wrapWithExtensions } from '../src/wrap-with-extensions';
 
 it('does not fail when creating query component', () => {
   const queryFn = () => Promise.resolve(10);
@@ -25,7 +25,7 @@ it('passes query component props to queryFn', async () => {
 
   const MyQueryComponent = wrap(useQuery, { queryFn }, keyFn);
 
-  expect(MyQueryComponent).toBewrap();
+  expect(MyQueryComponent).toBeDefined();
 
   function MyQueryHook() {
     const { data } = MyQueryComponent.use({ myProp: 'my-key-lajksdf', value1: 'value1-jioajsdf', value2: 'value2-joifds' });
@@ -49,7 +49,7 @@ it('passes query component props to queryFn', async () => {
 })
 
 it('query component shows default loading provided via QcProvider', async () => {
-  const MyQueryComponent = wrapExtended(useQuery, {
+  const MyQueryComponent = wrapWithExtensions(useQuery, {
     queryFn: () => {
       return new Promise(resolve => setTimeout(() => resolve(0), 300));
     },
@@ -65,7 +65,7 @@ it('query component shows default loading provided via QcProvider', async () => 
 })
 
 it('query component can override default loading element', async () => {
-  const MyQueryComponent = wrapExtended(useQuery, {
+  const MyQueryComponent = wrapWithExtensions(useQuery, {
     queryFn: () => {
       return new Promise(resolve => setTimeout(() => resolve(0), 300));
     },
@@ -102,7 +102,7 @@ it('passes extensions into keyFn when provided', async () => {
 
     return [variablesWithExt];
   };
-  const MyQueryComponent = wrapExtended(useQuery, {
+  const MyQueryComponent = wrapWithExtensions(useQuery, {
     queryFn: ({ queryKey }) => {
       return Promise.resolve(queryKey);
     },
@@ -142,7 +142,7 @@ it('calls useExtensions hook when provided and pass results to keyFn', async () 
 
     return [variablesWithExt];
   };
-  const MyQueryComponent = wrapExtended(useQuery, {
+  const MyQueryComponent = wrapWithExtensions(useQuery, {
     queryFn: ({ queryKey }) => {
       return Promise.resolve(queryKey);
     },

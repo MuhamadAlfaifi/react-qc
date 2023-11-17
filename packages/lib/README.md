@@ -1,6 +1,6 @@
 # Welcome to react-qc 👋
 
-Lightweight @tanstack/react-query wrapper that provides error/loading and searchParams() helper
+Lightweight @tanstack/react-query wrapper that provides error/loading, and more...
 
 [![Version](https://img.shields.io/npm/v/react-qc.svg)](https://www.npmjs.com/package/react-qc)
 [![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](#table-of-contents)
@@ -12,7 +12,7 @@ type TName = { title: string, first: string, last: string }
 const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
 
 <Catch error={<p>an error occured!</p>}>
-  <Get variables={{ path: 'https://randomuser.me/api', ...searchParams() }} loading={<p>loading...</p>} select={names}>
+  <Get variables={['https://randomuser.me/api', { results: 10 }]} loading={<p>loading...</p>} select={names}>
     {({ data }) => (
       <ul>
         {data.map(name => 
@@ -27,7 +27,7 @@ const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
 ## Features
 - typescript inference support
 - ui support for loading and error
-- searchParams() add/pluck/append from url into queryKey variables
+- keyFn to customize the query key creation
 - suspense-like experiece without losing the ability to cancel queries when the component is unmounted
 
 
@@ -47,8 +47,7 @@ const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
 - [Use infinite query](#use-infinite-query)
 - [Use infinite query with custom data function](#use-infinite-query-with-custom-data-function)
 - [Advanced: add extensions](#advanced-add-extensions)
-- [Advanced: pass variables that can process the extensions before creating the query key](#advanced-pass-variables-that-can-process-the-extensions-before-creating-the-query-key)
-- [Advanced: pass custom keyFn and process extensions and variables before creating the query key](#advanced-pass-custom-keyfn-and-process-extensions-and-variables-before-creating-the-query-key)
+- [Advanced: read extensions with custom keyFn](#advanced-read-extensions-with-custom-keyfn)
 
 
 # Installation
@@ -66,9 +65,10 @@ npm install react-qc
 # Define new query
 
 ```tsx
-import { defineQueryComponent } from 'react-qc';
+import { wrap } from 'react-qc';
+import { useQuery } from '@tanstack/react-query';
 
-export const Get = defineQueryComponent({
+export const Get = wrap(useQuery, {
   queryFn: async ({ signal }) => {
     return await fetch('https://randomuser.me/api', { signal }).then((res) => res.json());
   }
@@ -95,7 +95,7 @@ function MyComponent() {
 
 // use `Get` as a hook
 function MyComponent() {
-  const { data }: TQueryResults<uknown> = Get.use();
+  const { data } = Get.use();
 
   return (
     <div>
@@ -175,47 +175,43 @@ function App() {
 # Define custom variables
 
 ```tsx
-import { defineQueryComponent } from 'react-qc';
+import { wrap } from 'react-qc';
+import { useQuery } from '@tanstack/react-query';
 
-export const Get = defineQueryComponent<{ url: string, search: Record<string, unknown> }>({
-  queryFn: async ({ signal, queryKey: [variables] }) => {
-    const search = new URLSearchParams();
+export const Post = wrap<[string, Record<string, any>], unknown, typeof useQuery>(useQuery, {
+  queryFn: async ({ signal, queryKey: [path, body] }) => {
 
-    for (const key in variables.search) {
-      search.set(key, String(variables.search[key]));
-    }
-
-    const path = variables.url + '?' + search.toString();
-
-    return await fetch(path, { signal }).then((res) => res.json());
+    return await fetch(path, {
+      method: 'post',
+      body: JSON.stringify(body),
+      signal
+    }).then((res) => res.json());
   }
 });
+
 ```
 
 # Pass variables
 
 ```tsx
-import { Get } from 'path/to/Get';
+import { Post } from 'path/to/Post';
 
-// use `Get` as a component
+// use `Post` as a component
 function MyComponent() {
   return (
-    <Get variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }}>
+    <Post path="https://httpbin.org/post" body={{ results: 10 }}> // typescript will infer path and body from variables[0] and variables[1] respectively
       {({ data }) => (
         <div>
           {JSON.stringify(data)}
         </div>
       )}
-    </Get>
+    </Post>
   );
 }
 
-// use `Get` as a hook
+// use `Post` as a hook
 function MyComponent() {
-  const { data }: TQueryResults<uknown> = Get.use({ 
-    url: 'https://randomuser.me/api', 
-    search: { results: 10 } 
-  });
+  const { data } = Post.use(['https://httpbin.org/post', { results: 10 }]); // typescript will infer the variables type from the hook generic type [string, Record<string, any>]
 
   return (
     <div>
@@ -228,23 +224,23 @@ function MyComponent() {
 # Optional: keyFn
 
 ```tsx
-import { defineQueryComponent } from 'react-qc';
+import { wrap } from 'react-qc';
+import { useQuery } from '@tanstack/react-query';
 
-const keyFn = (variables) => [variables.url, variables.search];
+const keyFn = ([path, body]) => [path, body];
 
-export const Get = defineQueryComponent<{ url: string, search: Record<string, unknown> }>({
+export const Post = wrap<[string, Record<string, string>], unknown, typeof useQuery>(useQuery, {
   queryFn: async ({ signal, queryKey: [url, search] }) => {
     ...
   },
 }, keyFn);
 
-// the default query keyFn is: `(variables) => [variables]`
+// the default query keyFn is: `(variables) => variables`
 ```
 
 # Custom data function
 
 ```tsx
-
 import { Get } from 'path/to/Get';
 
 type TName = {
@@ -261,14 +257,16 @@ function names(data: unknown): TName[] {
   return (data as { results: TItem[] })?.results?.map((item) => item.name) || [];
 }
 
-// pass data function prop
+// pass select function prop
 function MyComponent() {
   return (
-    <Get variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }} select={names}>
-      {({ data }) => (
-        <div>
-          {JSON.stringify(data)}
-        </div>
+    <Get variables={['https://randomuser.me/api', { results: '10' }]} select={names}>
+      {({ data }) => ( // data is TName[]
+        <ul>
+          {data.map((name, index) => (
+            <li key={index}>{name.first} {name.last}</li>
+          ))}
+        </ul>
       )}
     </Get>
   );
@@ -276,15 +274,14 @@ function MyComponent() {
 
 // pass data function parameter
 function MyComponent() {
-  const { data }: TQueryResults<TName[]> = Get.use({ 
-    url: 'https://randomuser.me/api', 
-    search: { results: 10 } 
-  }, { select: names });
+  const { data } = Get.use(['https://randomuser.me/api', { results: '10' }], { select: names }); // data is TName[]
   
   return (
-    <div>
-      {JSON.stringify(data)}
-    </div>
+    <ul>
+      {data.map((name, index) => (
+        <li key={index}>{name.first} {name.last}</li>
+      ))}
+    </ul>
   );
 }
 ```
@@ -292,56 +289,53 @@ function MyComponent() {
 # Pagination
 
 ```tsx
-import { defineInfiniteQuery } from 'react-qc';
+import { wrap } from 'react-qc';
+import { useInfiniteQuery } from '@tanstack/react-query';
 
-export const PaginatedGet = defineInfiniteQuery<{ url: string, search: Record<string, unknown> }>({
-  queryFn: async ({ signal, queryKey: [variables], pageParam = 0 }) => {
+export const Resource = wrap<[string, Record<string, any>], unknown, typeof useInfiniteQuery>(useInfiniteQuery, {
+  queryFn: async ({ signal, queryKey: [url, parameters], pageParam = 0 }) => {
     const search = new URLSearchParams();
 
-    for (const key in variables.search) {
-      search.set(key, String(variables.search[key]));
+    for (const key in parameters) {
+      search.set(key, String(parameters[key]));
     }
 
     search.set('page', String(pageParam));
 
-    const path = variables.url + '?' + search.toString();
-
-    return await fetch(path, { signal }).then((res) => res.json());
+    return await fetch(url + '?' + search.toString(), { signal }).then((res) => res.json());
   },
   getNextPageParam: (lastPage) => lastPage.info.page + 1,
 });
+
 ```
 
 # Use infinite query
 
 ```tsx
-import { PaginatedGet } from 'path/to/PaginatedGet';
+import { Resource } from 'path/to/Resource';
 
-// use `PaginatedGet` as a component
+// use `Resource` as a component
 function MyComponent() {
   return (
-    <PaginatedGet variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }}>
+    <Resource variables={['https://randomuser.me/api', { results: 10 }]}>
       {({ data, fetchNextPage, hasNextPage }) => (
         <div>
           <div>{JSON.stringify(data)}</div>
           <button onClick={fetchNextPage} disabled={!hasNextPage}>fetch next page</button>
         </div>
       )}
-    </PaginatedGet>
+    </Resource>
   );
 }
 
-// use `PaginatedGet` as a hook
+// use `Resource` as a hook
 function MyComponent() {
-  const { data, fetchNextPage, hasNextPage }: TInfiniteQueryResults<uknown> = PaginatedGet.use({ 
-    url: 'https://randomuser.me/api', 
-    search: { results: 10 } 
-  });
+  const { data, fetchNextPage, hasNextPage } = Resource.use(['https://randomuser.me/api', { results: 10 }]);
 
   return (
     <div>
       <div>{JSON.stringify(data)}</div>
-      <button onClick={fetchNextPage} disabled={!hasNextPage}>fetch next page</button>
+      <button onClick={() => fetchNextPage()} disabled={!hasNextPage}>fetch next page</button>
     </div>
   );
 }
@@ -350,7 +344,7 @@ function MyComponent() {
 # Use infinite query with custom data function
 
 ```tsx
-import { PaginatedGet } from 'path/to/PaginatedGet';
+import { Resource } from 'path/to/Resource';
 
 type TName = {
   title: string;
@@ -373,7 +367,7 @@ export function pagesNames(pages: unknown): TName[] {
 // pass data function prop
 function MyComponent() {
   return (
-    <PaginatedGet variables={{ url: 'https://randomuser.me/api', search: { results: 10 } }} select={pagesNames}>
+    <Resource variables={['https://randomuser.me/api', { results: 10 }]} select={pagesNames}>
       {({ data, fetchNextPage, hasNextPage }) => (
         <div>
           <ul>
@@ -381,19 +375,16 @@ function MyComponent() {
               <li key={index}>{name.first} {name.last}</li>
             ))}
           </ul>
-          <li><button onClick={fetchNextPage} disabled={!hasNextPage}>fetch next page</button></li>
+          <li><button onClick={() => fetchNextPage()} disabled={!hasNextPage}>fetch next page</button></li>
         </div>
       )}
-    </PaginatedGet>
+    </Resource>
   );
 }
 
 // pass data function parameter
 function MyComponent() {
-  const { data, fetchNextPage, hasNextPage }: TInfiniteQueryResults<TName[]> = PaginatedGet.use({
-    url: 'https://randomuser.me/api',
-    search: { results: 10 }
-  }, { select: pagesNames });
+  const { data, fetchNextPage, hasNextPage } = Resource.use(['https://randomuser.me/api', { results: 10 }], { select: pagesNames });
 
   return (
     <div>
@@ -402,7 +393,7 @@ function MyComponent() {
           <li key={index}>{name.first} {name.last}</li>
         ))}
       </ul>
-      <li><button onClick={fetchNextPage} disabled={!hasNextPage}>fetch next page</button></li>
+      <li><button onClick={() => fetchNextPage()} disabled={!hasNextPage}>fetch next page</button></li>
     </div>
   );
 }
@@ -412,73 +403,45 @@ function MyComponent() {
 
 ```tsx
 import { QcProvider } from 'react-qc';
-import { useSearchParams, useParams, BrowserRouterProvider } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
 
-function QcProviderWithExtensions({ children }) {
+function useExtensions() {
   const params = useParams();
   const [searchParams] = useSearchParams();
 
-  return (
-    <QcProvider extensions={{ params, searchParams }}>
-      {children}
-    </QcProvider>
-  );
+  return { params, searchParams };
 }
 
 function App() {
+  const extensions = useExtensions();
   return (
-    <BrowserRouterProvider>
-      <QcProviderWithExtensions>
-        <MyComponent />
-      </QcProviderWithExtensions>
-    </BrowserRouterProvider>
+    <QcProvider extensions={extensions}> // Alternatively, pass hook directly like useExtensions={useExtensions} instead of extensions prop for similar result
+      <MyComponent />
+    </QcProvider>
   );
 }
 ```
 
-note: extensions are passed to the keyFn so you need to implement a keyFn for accessing the extensions
-note: when using <RouterProvider router={router}> and you still want to use searchPrams and params instead of extensions prop there is also useExtensions prop that is the custom hook that returns the extensions.
+note: extensions are passed to the keyFn so you need to implement a keyFn for accessing the extensions before creating the query key
 
-# Advanced: pass variables that can process the extensions before creating the query key
+# Advanced: read extensions with custom keyFn
 
 ```tsx
-import { Get } from 'path/to/Get';
-import { all } from 'react-qc';
+import { wrap } from 'react-qc';
+import { useQuery } from '@tanstack/react-query';
 
-// use `all` to create a callback that filters specific parameters from searchParams
-function MyComponent() {
-  return (
-    <Get variables={{ url: 'https://randomuser.me/api', myFn: all(['results']) }}>
-      {({ data }) => (
-        <div>
-          {JSON.stringify(data)}
-        </div>
-      )}
-    </Get>
-  );
+function keyFn(variables, extensions) {
+  const [path, body] = variables;
+  const { params, searchParams } = extensions;
+
+  return [path, body, params, searchParams];
 }
+
+export const Post = wrap<[string, Record<string, string>], unknown, typeof useQuery>(useQuery, {
+  queryFn: async ({ signal, queryKey: [url, body, params, searchParams] }) => {
+    ...
+  },
+}, keyFn);
 ```
 
-# Advanced: pass custom keyFn and process extensions and variables before creating the query key
-
-```tsx
-import { defineQueryComponent } from 'react-qc';
-
-const myKeyFn = ({ myFn, ...variables }, extensions) => {
-  const results = myFn(extensions);
-  
-  const variablesWithExtensionsResults = { extResults: results, ...variables };
-
-  return [variablesWithExtensionsResults];
-};
-
-export const Get = defineQueryComponent({
-  queryFn: async ({ signal, queryKey: [variables] }) => {
-    const search = new URLSearchParams(variables.extResults.searchParams);
-
-    const path = variables.url + '?' + search.toString();
-
-    return await fetch(path, { signal }).then((res) => res.json());
-  }
-}, myKeyFn);
-```
+note: if your use case can be achieved with using useSearchParams() and useParams() and building queryKey without keyFn or extensions you should do so, keyFn is a way to customize queryKey array creation and also access any global extensions if using wrapWithExtensions
