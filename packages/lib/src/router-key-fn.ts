@@ -22,7 +22,7 @@ function getQueryKeyApplyingExtensions<T extends TRequestVariables<any>>(variabl
     ? bodyParser.apply(extensions)
     : variables[1];
 
-  return [String(path), body];
+  return [path, body];
 }
 
 function getBodyParser(body: unknown) {

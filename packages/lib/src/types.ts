@@ -45,18 +45,16 @@ export type TRequestVariables<T> = [string, IBody<T>];
 
 // ------------------------------
 
-export type UseOptions<T = never> = T extends typeof useInfiniteQuery ? UseInfiniteQueryOptions : UseQueryOptions;
-
 export type TOptions<T = unknown, U = never> = U extends typeof useInfiniteQuery 
-  ? Omit<Partial<UseInfiniteQueryOptions>, 'select'> & { select?: (data: InfiniteData<any>) => T, initialPageParam: any } 
-  : Omit<Partial<UseQueryOptions>, 'select'> & { select?: (data: any) => T }
+  ? Omit<Partial<UseInfiniteQueryOptions>, 'select'> & { select?: (data: InfiniteData<any>) => T, initialPageParam?: any } 
+  : U extends typeof useQuery
+    ? Omit<Partial<UseQueryOptions>, 'select'> & { select?: (data: any) => T }
+    : never;
 
 export type TResults<T = unknown, U = never> = U extends typeof useInfiniteQuery
   ? Omit<UseInfiniteQueryResult, 'data'> & { data: T }
-  : Omit<UseQueryResult<unknown, unknown>, 'data'> & { data: T }
+  : U extends typeof useQuery
+    ? Omit<UseQueryResult<unknown, unknown>, 'data'> & { data: T }
+    : never;
 
 export type TRenderResults<T, U = never> = (props: TResults<T, U>) => ReactNode;
-
-export type TUseQueryHook = typeof useQuery;
-
-export type TUseInfiniteQueryHook = typeof useInfiniteQuery;

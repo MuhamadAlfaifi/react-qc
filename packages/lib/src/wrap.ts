@@ -4,29 +4,29 @@ import { QueryStatusWithPending, TRenderResults, TOptions, TResults } from './ty
 import { defaultKeyFn } from './utils';
 import { ReactNode } from 'react';
 
-export function wrap<TVariables extends [unknown, unknown], U = unknown>(hook: typeof useQuery | typeof useInfiniteQuery, defaultOptions: TOptions<U, typeof hook>, keyFn: any = defaultKeyFn) {
+export function wrap<TVariables extends [unknown, unknown], TData = unknown, THookFn extends typeof useQuery | typeof useInfiniteQuery = typeof useQuery | typeof useInfiniteQuery>(wrappedHook: THookFn, defaultOptions: TOptions<TData, THookFn>, keyFn: any = defaultKeyFn) {
 
   function useKeyFn(variables: TVariables) {
     return keyFn(variables);
   }
 
-  function use<UU = U>(variables: TVariables, options?: TOptions<UU, typeof hook>, client?: QueryClient) {
-    const query = (hook as any)(variables, {
+  function use<T = TData>(variables: TVariables, options?: TOptions<T, THookFn>, client?: QueryClient) {
+    const query = (wrappedHook as any)({
       queryKey: useKeyFn(variables),
       ...defaultOptions,
       ...options,
-    } as TOptions<typeof hook>, client);
+    }, client);
     
-    return query as TResults<UU, typeof hook>;
+    return query as TResults<T, THookFn>;
   }
 
-  function Component<UU = U>(
+  function Component<T = TData>(
     { path = (undefined as TVariables[0]), body = (undefined as TVariables[1]), variables = ([undefined, undefined] as TVariables), hasLoading, loading, client, render, children, ...options }: 
-    { path?: TVariables[0], body?: TVariables[1], variables?: TVariables, hasLoading?: boolean, loading?: ReactNode, client?: QueryClient, render?: TRenderResults<UU, typeof hook>, children?: TRenderResults<UU, typeof hook> } & TOptions<UU, typeof hook>
+    { path?: TVariables[0], body?: TVariables[1], variables?: TVariables, hasLoading?: boolean, loading?: ReactNode, client?: QueryClient, render?: TRenderResults<T, THookFn>, children?: TRenderResults<T, THookFn> } & TOptions<T, THookFn>
   ) {
     const { loading: defaultLoading } = useQcDefaults();
 
-    const results = use(([variables[0] || path, variables[1] || body] as TVariables), { throwOnError: true, ...options } as unknown as TOptions<UU, typeof hook>, client);
+    const results = use(([variables[0] || path, variables[1] || body] as TVariables), { throwOnError: true, ...options } as unknown as TOptions<T, THookFn>, client);
 
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
     const finalLoading = loading || defaultLoading;
