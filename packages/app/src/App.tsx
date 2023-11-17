@@ -14,10 +14,17 @@ const router = createBrowserRouter([
   }
 ]);
 
+function useExtensions() {
+  return {
+    searchParams: useSearchParams()[0],
+    params: useParams(),
+  };
+}
+
 function App() {
   return (
     <QueryClientProvider client={client}>
-      <QcProvider loading={<Loading />} error={({ resetErrorBoundary, error }) => <Error onClick={resetErrorBoundary} error={error}></Error>} extensions={{ useSearchParams, useParams }}>
+      <QcProvider loading={<Loading />} error={({ resetErrorBoundary, error }) => <Error onClick={resetErrorBoundary} error={error}></Error>} useExtensions={useExtensions}>
         <RouterProvider router={router} />
       </QcProvider>
       <ReactQueryDevtools initialIsOpen={false} />

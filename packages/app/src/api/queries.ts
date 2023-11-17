@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { defaultKeyFn, wrap } from '../../../lib/src/index';
+import { routerKeyFn, wrapWithExtensions } from 'react-qc';
 
 export const Get = wrap(useQuery, {
   queryFn: async ({ signal }) => {
@@ -18,8 +19,8 @@ export const Post = wrap(useQuery, {
   }
 });
 
-export const MyService = wrap(useInfiniteQuery, {
-  queryFn: async ({ signal, queryKey: [url, parameters], pageParam = 0 }) => {
+export const Resource = wrap(useInfiniteQuery, {
+  queryFn: async ({ signal, queryKey: [base, parameters], pageParam = 0 }) => {
     const search = new URLSearchParams();
     const _parameters = parameters as Record<string, any>;
 
@@ -29,14 +30,21 @@ export const MyService = wrap(useInfiniteQuery, {
 
     search.set('page', String(pageParam));
 
-    return await fetch(url + '?' + search.toString(), { signal }).then((res) => res.json());
+    return await fetch(base + '?' + search.toString(), { signal }).then((res) => res.json());
   },
   getNextPageParam: (lastPage: any) => lastPage.info.page + 1,
 });
 
-export const PaginatedGet = wrap(useInfiniteQuery, {
-  queryFn: async ({ signal, pageParam }) => {
-    return await fetch(`https://randomuser.me/api?page=${pageParam}`, { signal }).then((res) => res.json());
-  },
-  getNextPageParam: (_, pages) => pages.length + 1,
-}, defaultKeyFn);
+export const MyQuery = wrapWithExtensions(useQuery, {
+  queryFn: async ({ signal, queryKey: [path, body] }) => {
+    if (!body) {
+      return await fetch(path as string, { signal }).then((res) => res.json());
+    }
+
+    return await fetch(path as string, {
+      method: 'post',
+      body: JSON.stringify(body),
+      signal
+    }).then((res) => res.json());
+  }
+}, routerKeyFn);
