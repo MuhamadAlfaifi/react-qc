@@ -4,4 +4,4 @@ export * from './catch';
 export * from './utils';
 export * from './router-key-fn';
 export * from './wrap';
-export * from './wrap-extended';
+export * from './wrap-with-extensions';

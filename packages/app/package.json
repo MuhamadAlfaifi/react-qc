@@ -15,7 +15,7 @@
     "prismjs": "^1.29.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-qc": "^1.6.0",
+    "react-qc": "^1.7.2-wrap",
     "react-router-dom": "^6.17.0"
   },
   "devDependencies": {
