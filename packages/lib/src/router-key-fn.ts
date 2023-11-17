@@ -1,5 +1,5 @@
 import isPlainObject from 'lodash.isplainobject';
-import { TRequestVariables } from './types';
+import { TVariableFn } from './types';
 import { QueryKey } from '@tanstack/react-query';
 
 export type TReactRouterExtensions = {
@@ -11,7 +11,11 @@ function usingRouter(obj: Record<string, unknown>): obj is TReactRouterExtension
   return isPlainObject(obj.params) && obj.searchParams instanceof URLSearchParams;
 }
 
-function getQueryKeyApplyingExtensions<T extends TRequestVariables<any>>(variables: T, extensions: TReactRouterExtensions): QueryKey {
+function getQueryKeyApplyingExtensions<T extends TVariableFn<unknown> | TVariableFn<unknown>[] | unknown[]>(variables: T, extensions: TReactRouterExtensions): QueryKey {
+  if (typeof variables === 'function') {
+    return variables(extensions) as unknown as QueryKey;
+  }
+  
   const pathParser = getPathParser(variables[0]);
   const bodyParser = getBodyParser(variables[1]);
 
@@ -44,7 +48,7 @@ function getPathParser(path: unknown) {
   const fallbacks: Record<string, string> = {};
 
   function hasTokens() {
-    return typeof path === 'string' && /{[^}]+}/.test(path);
+    return typeof path === 'string' && /{[^}]+}/.test(path) || typeof path === 'function';
   }
 
   function extractDefaultsFromPath(path: string) {
@@ -61,13 +65,17 @@ function getPathParser(path: unknown) {
   }
 
   function apply(extensions: TReactRouterExtensions) {
-    if (typeof path !== 'string') {
+    if (!hasTokens()) {
       return path;
     }
-    
-    extractDefaultsFromPath(path);
 
-    return path.replace(/{([^}]+)}/g, (_, variable) => {
+    if (typeof path === 'function') {
+      return path(extensions);
+    }
+    
+    extractDefaultsFromPath(path as string);
+
+    return (path as string).replace(/{([^}]+)}/g, (_, variable) => {
       const original = `{${variable}}`;
       const paramValue = extensions.searchParams?.get(variable) || extensions.params?.[variable];
       
@@ -81,7 +89,7 @@ function getPathParser(path: unknown) {
   };
 };
 
-export function routerKeyFn<TBody = unknown>(variables: TRequestVariables<TBody>, extensions: TReactRouterExtensions): QueryKey {
+export function routerKeyFn<T extends TVariableFn<unknown> | TVariableFn<unknown>[] | unknown[]>(variables: T, extensions: Record<string, unknown>): QueryKey {
   if (!usingRouter(extensions)) {
     throw new Error('Cannot use routerKeyFn without params and searchParams extensions');
   }
