@@ -12,7 +12,7 @@ type TName = { title: string, first: string, last: string }
 const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
 
 <Catch error={<p>an error occured!</p>}>
-  <Get variables={['https://randomuser.me/api', { results: 10 }]} loading={<p>loading...</p>} select={names}>
+  <Post path="/api/users/search" body={{ ...searchFilters }} loading={<p>loading...</p>} select={names}>
     {({ data }) => (
       <ul>
         {data.map(name => 
@@ -20,7 +20,7 @@ const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
         )}
       </ul>
     )}
-  </Get>
+  </Post>
 </Catch>
 ```
 
@@ -28,7 +28,7 @@ const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
 - typescript inference support
 - ui support for loading and error
 - keyFn to customize the query key creation
-- suspense-like experiece without losing the ability to cancel queries when the component is unmounted
+- wrapped hook can be used as a component or a hook (e.g. `Get.use([...etc])` or `<Get variables={[...etc]}>...</Get>`)
 
 
 # Table of Contents
@@ -199,7 +199,7 @@ import { Post } from 'path/to/Post';
 // use `Post` as a component
 function MyComponent() {
   return (
-    <Post path="https://httpbin.org/post" body={{ results: 10 }}> // typescript will infer path and body from variables[0] and variables[1] respectively
+    <Post variables={['https://httpbin.org/post', { results: 10 }]}> // typescript will infer variables from generic parameter
       {({ data }) => (
         <div>
           {JSON.stringify(data)}
@@ -211,7 +211,7 @@ function MyComponent() {
 
 // use `Post` as a hook
 function MyComponent() {
-  const { data } = Post.use(['https://httpbin.org/post', { results: 10 }]); // typescript will infer the variables type from the hook generic type [string, Record<string, any>]
+  const { data } = Post.use(['https://httpbin.org/post', { results: 10 }]); // typescript will infer variables from generic parameter
 
   return (
     <div>
@@ -221,16 +221,18 @@ function MyComponent() {
 }
 ```
 
+Note: if your variables are like this: `<Post variables={['https://httpbin.org/post', { results: 10 }]}>...</Post>` you can also use `<Post path={'https://httpbin.org/post'} body={{ results: 10 }}>...</Post>` for similar result
+
 # Optional: keyFn
 
 ```tsx
 import { wrap } from 'react-qc';
 import { useQuery } from '@tanstack/react-query';
 
-const keyFn = ([path, body]) => [path, body];
+const keyFn = (variables) => [{ url: variables[0], search: variables[1] }];
 
 export const Post = wrap<[string, Record<string, string>], unknown, typeof useQuery>(useQuery, {
-  queryFn: async ({ signal, queryKey: [url, search] }) => {
+  queryFn: async ({ signal, queryKey: [{ url, search }] }) => {
     ...
   },
 }, keyFn);
@@ -402,7 +404,7 @@ function MyComponent() {
 # Advanced: add extensions
 
 ```tsx
-import { QcProvider } from 'react-qc';
+import { QcExtensionsProvider } from 'react-qc';
 import { useSearchParams, useParams } from 'react-router-dom';
 
 function useExtensions() {
@@ -415,14 +417,15 @@ function useExtensions() {
 function App() {
   const extensions = useExtensions();
   return (
-    <QcProvider extensions={extensions}> // Alternatively, pass hook directly like useExtensions={useExtensions} instead of extensions prop for similar result
+    <QcExtensionsProvider extensions={extensions}> // Alternatively, pass hook directly like useExtensions={useExtensions} for similar result
       <MyComponent />
-    </QcProvider>
+    </QcExtensionsProvider>
   );
 }
 ```
 
 note: extensions are passed to the keyFn so you need to implement a keyFn for accessing the extensions before creating the query key
+note: if you need to recreate the queryKey you can use `YourQuery.useKeyFnWithExtensions([...variables])` or `YourQuery.keyFn([...variables])` for when YourQuery is wrapWithExtensions or wrapped without extensions respectively
 
 # Advanced: read extensions with custom keyFn
 
@@ -443,5 +446,3 @@ export const Post = wrap<[string, Record<string, string>], unknown, typeof useQu
   },
 }, keyFn);
 ```
-
-note: if your use case can be achieved with using useSearchParams() and useParams() and building queryKey without keyFn or extensions you should do so, keyFn is a way to customize queryKey array creation and also access any global extensions if using wrapWithExtensions

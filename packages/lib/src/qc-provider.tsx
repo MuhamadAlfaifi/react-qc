@@ -7,17 +7,15 @@ import type {
 const context = createContext<QCDefaultsContext>({
   error: ({ resetErrorBoundary }) => <div><div>an error occured!</div><button onClick={resetErrorBoundary}>resetErrorBoundary</button></div>,
   loading: 'loading...',
-  extensions: undefined,
-  useExtensions: undefined,
 });
 
 export function useQcDefaults() {
   return useContext(context);
 }
 
-export function QcProvider({ error, loading, extensions, useExtensions, children }: QCDefaultsProviderProps) {
+export function QcProvider({ error, loading, children }: QCDefaultsProviderProps) {
   return (
-    <context.Provider value={{ error, loading, extensions, useExtensions }}>
+    <context.Provider value={{ error, loading }}>
       {children}
     </context.Provider>
   );

@@ -3,17 +3,18 @@ import { useQcDefaults } from './qc-provider';
 import { QueryStatusWithPending, TRenderResults, TOptions, TResults, TPath, TBody, TInput } from './types';
 import { defaultKeyFn } from './utils';
 import { ReactNode } from 'react';
+import { useQcExtensions } from '.';
 
 export function wrapWithExtensions<TVariables extends unknown[] = unknown[], TData = unknown, THookFn extends typeof useQuery | typeof useInfiniteQuery = never>(wrappedHook: THookFn, defaultOptions: TOptions<TData, THookFn>, keyFn: any = defaultKeyFn) {
 
-  function useKeyFn(variables: TInput<TVariables>) {
-    const { extensions, useExtensions } = useQcDefaults();
+  function useKeyFnWithExtensions(variables: TInput<TVariables>) {
+    const { extensions, useExtensions } = useQcExtensions();
     return keyFn(variables, extensions || useExtensions?.() || {});
   }
 
   function use<T = TData>(variables: TInput<TVariables>, options?: TOptions<T, THookFn>, client?: QueryClient) {
     const query = (wrappedHook as any)({
-      queryKey: useKeyFn(variables),
+      queryKey: useKeyFnWithExtensions(variables),
       ...defaultOptions,
       ...options,
     }, client);
@@ -43,7 +44,7 @@ export function wrapWithExtensions<TVariables extends unknown[] = unknown[], TDa
 
   return Object.assign(Component, { 
     use, 
-    useKeyFn,
+    useKeyFnWithExtensions,
     keyFn,
     queryFn: defaultOptions.queryFn,
   });

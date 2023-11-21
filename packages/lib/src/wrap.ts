@@ -6,13 +6,9 @@ import { ReactNode } from 'react';
 
 export function wrap<TVariables extends unknown[] = unknown[], TData = unknown, THookFn extends typeof useQuery | typeof useInfiniteQuery = never>(wrappedHook: THookFn, defaultOptions: TOptions<TData, THookFn>, keyFn: any = defaultKeyFn) {
 
-  function useKeyFn(variables: TInput<TVariables>) {
-    return keyFn(variables);
-  }
-
   function use<T = TData>(variables: TInput<TVariables>, options?: TOptions<T, THookFn>, client?: QueryClient) {
     const query = (wrappedHook as any)({
-      queryKey: useKeyFn(variables),
+      queryKey: keyFn(variables),
       ...defaultOptions,
       ...options,
     }, client);
@@ -42,7 +38,6 @@ export function wrap<TVariables extends unknown[] = unknown[], TData = unknown, 
 
   return Object.assign(Component, { 
     use, 
-    useKeyFn,
     keyFn,
     queryFn: defaultOptions.queryFn,
   });

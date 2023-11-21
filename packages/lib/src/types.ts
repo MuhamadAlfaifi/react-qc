@@ -11,11 +11,16 @@ export type QCLoading = ReactNode;
 export type QCDefaultsContext = {
   error: QCError
   loading: QCLoading,
-  extensions?: Record<string, unknown>,
-  useExtensions?: () => Record<string, unknown>,
 };
 
 export type QCDefaultsProviderProps = QCDefaultsContext & { children?: ReactNode };
+
+export type QCExtensionsContext = {
+  extensions?: Record<string, unknown>,
+  useExtensions?: () => Record<string, unknown>,
+}
+
+export type QCExtensionsProviderProps = QCExtensionsContext & { children?: ReactNode };
 
 export type TCatchProps = { error?: QCError, children?: ReactNode };
 
