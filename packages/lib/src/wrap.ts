@@ -1,8 +1,8 @@
 import { QueryClient, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useQcDefaults } from './qc-provider';
 import { QueryStatusWithPending, TRenderResults, TOptions, TResults, TPath, TBody, TInput } from './types';
-import { defaultKeyFn } from './utils';
 import { ReactNode } from 'react';
+import { defaultKeyFn } from '.';
 
 export function wrap<TVariables extends unknown[] = unknown[], TData = unknown, THookFn extends typeof useQuery | typeof useInfiniteQuery = never>(wrappedHook: THookFn, defaultOptions: TOptions<TData, THookFn>, keyFn: any = defaultKeyFn) {
 
@@ -39,6 +39,7 @@ export function wrap<TVariables extends unknown[] = unknown[], TData = unknown, 
   return Object.assign(Component, { 
     use, 
     keyFn,
+    defaultQuerKey: defaultOptions.queryKey,
     queryFn: defaultOptions.queryFn,
   });
 }

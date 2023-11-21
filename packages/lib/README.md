@@ -69,6 +69,7 @@ import { wrap } from 'react-qc';
 import { useQuery } from '@tanstack/react-query';
 
 export const Get = wrap(useQuery, {
+  queryKey: ['users'],
   queryFn: async ({ signal }) => {
     return await fetch('https://randomuser.me/api', { signal }).then((res) => res.json());
   }

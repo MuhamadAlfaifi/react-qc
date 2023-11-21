@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { FallbackProps } from 'react-error-boundary';
-import { QCError, TRequestVariables } from './types';
-import { QueryKey } from '@tanstack/react-query';
+import { QCError } from './types';
 
 export function errorRender(x: QCError): (args: FallbackProps) => ReactNode {
   return typeof x === 'function' ? x : () => x;
@@ -9,10 +8,6 @@ export function errorRender(x: QCError): (args: FallbackProps) => ReactNode {
 
 export function defaultDataFn<T>(data: unknown | unknown[]): T {
   return data as T;
-}
-
-export function defaultKeyFn<TBody = unknown>(variables: TRequestVariables<TBody>, _extensions: Record<string, unknown>): QueryKey {
-  return variables as QueryKey;
 }
 
 export const parameters = (params: any[] | URLSearchParams = []) => (searchParams: URLSearchParams | any[] = []) => {

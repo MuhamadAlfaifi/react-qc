@@ -10,10 +10,10 @@ const context = createContext<QCExtensionsContext>({
 });
 
 export function useQcExtensions() {
-  return useContext(context);
+  return useContext<QCExtensionsContext>(context);
 }
 
-export function QcExtensionsProvider({ extensions, useExtensions, children }: QCExtensionsProviderProps) {
+export function QcExtensionsProvider({ extensions, useExtensions, children }: QCExtensionsProviderProps<any>) {
   return (
     <context.Provider value={{ extensions, useExtensions }}>
       {children}

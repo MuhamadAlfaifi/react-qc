@@ -15,12 +15,12 @@ export type QCDefaultsContext = {
 
 export type QCDefaultsProviderProps = QCDefaultsContext & { children?: ReactNode };
 
-export type QCExtensionsContext = {
-  extensions?: Record<string, unknown>,
-  useExtensions?: () => Record<string, unknown>,
+export type QCExtensionsContext<T = Record<string, unknown>> = {
+  extensions?: T,
+  useExtensions?: () => T,
 }
 
-export type QCExtensionsProviderProps = QCExtensionsContext & { children?: ReactNode };
+export type QCExtensionsProviderProps<T> = QCExtensionsContext<T> & { children?: ReactNode };
 
 export type TCatchProps = { error?: QCError, children?: ReactNode };
 
@@ -38,7 +38,7 @@ export type TInfiniteQueryOptions<T = unknown> = Omit<Partial<UseInfiniteQueryOp
 
 export type TRenderInfiniteResults<T> = (props: TInfiniteQueryResults<T>) => ReactNode;
 
-export type TKeyFn<T> = (options: T, extensions?: Record<string, unknown>) => QueryKey;
+export type TKeyFn<T, K = never> = (variables: T, extensions?: K) => QueryKey;
 
 export type TDataFn<T> = (data: any) => T;
 

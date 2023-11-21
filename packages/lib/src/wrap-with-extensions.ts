@@ -1,9 +1,8 @@
 import { QueryClient, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useQcDefaults } from './qc-provider';
 import { QueryStatusWithPending, TRenderResults, TOptions, TResults, TPath, TBody, TInput } from './types';
-import { defaultKeyFn } from './utils';
 import { ReactNode } from 'react';
-import { useQcExtensions } from '.';
+import { defaultKeyFn, useQcExtensions } from '.';
 
 export function wrapWithExtensions<TVariables extends unknown[] = unknown[], TData = unknown, THookFn extends typeof useQuery | typeof useInfiniteQuery = never>(wrappedHook: THookFn, defaultOptions: TOptions<TData, THookFn>, keyFn: any = defaultKeyFn) {
 
@@ -46,6 +45,7 @@ export function wrapWithExtensions<TVariables extends unknown[] = unknown[], TDa
     use, 
     useKeyFnWithExtensions,
     keyFn,
+    defaultQuerKey: defaultOptions.queryKey,
     queryFn: defaultOptions.queryFn,
   });
 }
