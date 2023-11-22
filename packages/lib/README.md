@@ -25,7 +25,6 @@ const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
 ```
 
 ## Features
-- typescript inference support
 - ui support for loading and error
 - keyFn to customize the query key creation
 - wrapped hook can be used as a component or a hook (e.g. `Get.use([...etc])` or `<Get variables={[...etc]}>...</Get>`)
