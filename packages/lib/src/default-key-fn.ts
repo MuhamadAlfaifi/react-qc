@@ -1,7 +1,7 @@
 import { TVariableFn } from './types';
 import { QueryKey } from '@tanstack/react-query';
 
-export function defaultKeyFn<T extends TVariableFn<unknown> | TVariableFn<unknown>[] | unknown[], Extensions = never>(variables: T, extensions: Extensions): QueryKey {
+export const defaultKeyFn = <T extends TVariableFn<unknown> | TVariableFn<unknown>[] | unknown[], Extensions = never>(variables: T, extensions: Extensions): QueryKey => {
   if (typeof variables === 'function') {
     return variables(extensions) as unknown as QueryKey;
   }
