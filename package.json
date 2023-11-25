@@ -1,7 +1,0 @@
-{
-  "name": "react-qc",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ]
-}

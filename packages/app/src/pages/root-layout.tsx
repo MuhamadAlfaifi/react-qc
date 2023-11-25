@@ -51,6 +51,15 @@ function TabLink({ children, name = 'tab', value }: { children: React.ReactNode,
 
 export default function RootLayoutPage() {
 
+  const lol = <Resource variables={['https://randomuser.me/api', { results: 10 }]} select={pagesNames}>
+    {(data, { fetchNextPage, hasNextPage }) => (
+      <div>
+        <div>{JSON.stringify(data)}</div>
+        <button onClick={() => fetchNextPage()} disabled={!hasNextPage}>fetch next page</button>
+      </div>
+    )}
+  </Resource>;
+
   return (
     <div className="grid grid-cols-12 w-full max-w-4xl mx-auto py-10 gap-10">
       <nav className="col-span-3 border-r">

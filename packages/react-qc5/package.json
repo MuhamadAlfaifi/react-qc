@@ -1,13 +1,13 @@
 {
-  "name": "react-qc",
-  "version": "2.0.0",
-  "description": "react-qc wraps react-query hooks and give you a component with loading, error, and more...",
+  "name": "react-qc5",
+  "private": true,
+  "version": "0.1.0",
+  "description": "react-qc wraps useQuery/useInfiniteQuery hooks and give you a component with loading, error, and queryKey creation flexibility.",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
-  "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages/lib",
+  "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages/lib",
-    "directory": "packages/lib"
+    "url": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages"
   },
   "license": "MIT",
   "keywords": [
@@ -16,10 +16,9 @@
     "router",
     "search",
     "params",
-    "query params",
-    "components",
-    "data fetching",
-    "data fetching components"
+    "searchParams",
+    "component",
+    "data fetching"
   ],
   "files": [
     "dist",
@@ -36,13 +35,13 @@
     "test": "vitest --watch"
   },
   "dependencies": {
-    "@tanstack/react-query": "^4.36.1 || ^5.0.0",
+    "@tanstack/react-query": "^5.0.0",
     "react": "^16.8.0 || ^17 || ^18",
     "react-dom": "^16.8.0 || ^17 || ^18",
     "react-error-boundary": "^4.0.11"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^4.36.1 || ^5.0.0",
+    "@tanstack/react-query": "^5.0.0",
     "react": "^16.8.0 || ^17 || ^18",
     "react-dom": "^16.8.0 || ^17 || ^18"
   },

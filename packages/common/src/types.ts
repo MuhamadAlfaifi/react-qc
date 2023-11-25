@@ -24,6 +24,6 @@ export type QCExtensionsProviderProps<T> = QCExtensionsContext<T> & { children?:
 
 export type TCatchProps = { error?: QCError, children?: ReactNode };
 
-export type QueryStatusWithPending = QueryStatus | 'pending';
+export type QueryStatusWithPending = QueryStatus | 'loading' | 'pending';
 
 export type TVariableFn<T> = (...args: any[]) => T;

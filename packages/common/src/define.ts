@@ -1,4 +1,4 @@
-import { QueryClient, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { InfiniteData, QueryClient, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useQcDefaults } from './qc-provider';
 import { QueryStatusWithPending, TVariableFn } from './types';
 import { ReactNode } from 'react';
@@ -24,8 +24,8 @@ export function defineUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnD
       ...options
     } as UseQueryOptions<TQueryFnData, TError, T, TVariables>;
 
-    // @ts-expect-error Call the useQuery hook with the queryKey and the mergedOptions
     return useQuery<TQueryFnData, TError, T, TVariables>({
+      // @ts-ignore
       queryKey,
       ...mergedOptions
     }, client);
@@ -64,13 +64,13 @@ export function defineUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnD
   });
 }
 
-export function defineUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData>(
-  defaultOptions: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TVariables>,
+export function defineUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData, TQueryData = TQueryFnData>(
+  defaultOptions: UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TVariables>,
   keyFn: any = defaultKeyFn
 ) {
   function use<T = TData>(
     variables: TVariableFn<TVariables> | TVariableFn<TVariables>[] | TVariables, 
-    options?: UseInfiniteQueryOptions<TQueryFnData, TError, T, TVariables>, 
+    options?: Partial<UseInfiniteQueryOptions<TQueryFnData, TError, T, TQueryData, TVariables>>,
     client?: QueryClient
   ) {
     
@@ -81,10 +81,11 @@ export function defineUseInfiniteQuery<TVariables extends QueryKey = QueryKey, T
     const mergedOptions = {
       ...defaultOptions,
       ...options
-    } as UseInfiniteQueryOptions<TQueryFnData, TError, T, TVariables>;
+    } as UseInfiniteQueryOptions<TQueryFnData, TError, T, TQueryData, TVariables>;
 
-    // @ts-expect-error Call the useQuery hook with the queryKey and the mergedOptions
+    // @ts-ignore
     return useInfiniteQuery<TQueryFnData, TError, T, TVariables>({
+      // @ts-ignore
       queryKey,
       ...mergedOptions
     }, client);
@@ -92,7 +93,7 @@ export function defineUseInfiniteQuery<TVariables extends QueryKey = QueryKey, T
 
   function Component<T = TData>(
     { path, body, variables, hasLoading, loading, render, children, client, ...options }:
-    { path?: TVariableFn<TVariables[0]> | TVariables[0], body?: TVariableFn<TVariables[1]> | TVariables[1], variables?: TVariableFn<TVariables> | TVariableFn<TVariables>[] | TVariables, hasLoading?: boolean, loading?: ReactNode, render?: (data: T, results: UseInfiniteQueryResult<T, TError>) => ReactNode, children?: (data: T, results: UseInfiniteQueryResult<T, TError>) => ReactNode } & { client?: QueryClient, } & UseInfiniteQueryOptions<TQueryFnData, TError, T, TVariables>
+    { path?: TVariableFn<TVariables[0]> | TVariables[0], body?: TVariableFn<TVariables[1]> | TVariables[1], variables?: TVariableFn<TVariables> | TVariableFn<TVariables>[] | TVariables, hasLoading?: boolean, loading?: ReactNode, render?: (data: T, results: UseInfiniteQueryResult<T, TError>) => ReactNode, children?: (data: T, results: UseInfiniteQueryResult<T, TError>) => ReactNode } & { client?: QueryClient, } & Partial<UseInfiniteQueryOptions<TQueryFnData, TError, T, TQueryData, TVariables>>
   ) {
     const { loading: defaultLoading } = useQcDefaults();
 
