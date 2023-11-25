@@ -1,10 +1,7 @@
-import { InfiniteData, QueryClient, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { useQcDefaults } from './qc-provider';
-import { QueryStatusWithPending, TVariableFn } from './types';
+import { QueryClient, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import type { TVariableFn } from 'common';
 import { ReactNode } from 'react';
-import { detectReactQueryVersion } from './utils';
-import { defaultKeyFn } from './default-key-fn';
-import { client } from '../../app/src/';
+import { defaultKeyFn, useQcDefaults } from 'common';
 
 export function defineUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData>(
   defaultOptions: UseQueryOptions<TQueryFnData, TError, TData, TVariables>,
@@ -41,14 +38,12 @@ export function defineUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnD
     // organize the variables into an array and fix type mismatches caused by path and body props
     const _variables = [path, body, ...(Array.isArray(variables) ? variables : [variables])].filter(Boolean) as TVariableFn<TVariables> | TVariableFn<TVariables>[] | TVariables;
   
-    const results = use(_variables, { ...(detectReactQueryVersion() === 5 ? { throwOnError: true } : { useErrorBoundary: true }), ...options }, client);
+    const results = use(_variables, { throwOnError: true, ...options }, client);
   
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
     const finalLoading = loading || defaultLoading;
 
-    const status = results.status as QueryStatusWithPending;
-  
-    if (finalHasLoading && (status === 'loading' || status === 'pending')) {
+    if (finalHasLoading && results.status === 'pending') {
       return finalLoading;
     }
   
@@ -101,14 +96,12 @@ export function defineUseInfiniteQuery<TVariables extends QueryKey = QueryKey, T
     // organize the variables into an array and fix type mismatches caused by path and body props
     const _variables = [path, body, ...(Array.isArray(variables) ? variables : [variables])].filter(Boolean) as TVariableFn<TVariables> | TVariableFn<TVariables>[] | TVariables;
 
-    const results = use(_variables, { ...(detectReactQueryVersion() === 5 ? { throwOnError: true } : { useErrorBoundary: true }), ...options }, client);
+    const results = use(_variables, { throwOnError: true, ...options }, client);
 
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
     const finalLoading = loading || defaultLoading;
 
-    const status = results.status as QueryStatusWithPending;
-
-    if (finalHasLoading && (status === 'loading' || status === 'pending')) {
+    if (finalHasLoading && results.status === 'pending') {
       return finalLoading;
     }
 

@@ -13,7 +13,7 @@ const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
 
 <Catch error={<p>an error occured!</p>}>
   <Post path="/api/users/search" body={{ ...searchFilters }} loading={<p>loading...</p>} select={names}>
-    {({ data }) => (
+    {(data) => (
       <ul>
         {data.map(name => 
           <li key={name}>{name.first} - {name.last}</li>

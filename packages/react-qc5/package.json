@@ -1,8 +1,7 @@
 {
   "name": "react-qc5",
-  "private": true,
-  "version": "0.1.0",
-  "description": "react-qc wraps useQuery/useInfiniteQuery hooks and give you a component with loading, error, and queryKey creation flexibility.",
+  "version": "0.0.1",
+  "description": "Lightweight @tanstack/react-query wrapper that provides error/loading, and more...",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages",
   "repository": {

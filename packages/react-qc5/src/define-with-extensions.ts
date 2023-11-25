@@ -1,10 +1,7 @@
 import { QueryClient, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { useQcDefaults } from './qc-provider';
-import { QueryStatusWithPending, TVariableFn } from './types';
+import type { TVariableFn } from 'common';
 import { ReactNode } from 'react';
-import { detectReactQueryVersion } from './utils';
-import { defaultKeyFn } from './default-key-fn';
-import { useQcExtensions } from './qc-extensions-provider';
+import { defaultKeyFn, useQcExtensions, useQcDefaults } from 'common';
 
 export function defineUseQueryWithExtensions<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData>(
   defaultOptions: UseQueryOptions<TQueryFnData, TError, TData, TVariables>,
@@ -32,8 +29,9 @@ export function defineUseQueryWithExtensions<TVariables extends QueryKey = Query
       ...options
     } as UseQueryOptions<TQueryFnData, TError, T, TVariables>;
 
-    // @ts-expect-error Call the useQuery hook with the queryKey and the mergedOptions
+    // @ts-ignore r Call the useQuery hook with the queryKey and the mergedOptions
     return useQuery<TQueryFnData, TError, T, TVariables>({
+      // @ts-ignore
       queryKey,
       ...mergedOptions
     }, client);
@@ -48,14 +46,12 @@ export function defineUseQueryWithExtensions<TVariables extends QueryKey = Query
     // organize the variables into an array and fix type mismatches caused by path and body props
     const _variables = [path, body, ...(Array.isArray(variables) ? variables : [variables])].filter(Boolean) as TVariableFn<TVariables> | TVariableFn<TVariables>[] | TVariables;
   
-    const results = use(_variables, { ...(detectReactQueryVersion() === 5 ? { throwOnError: true } : { useErrorBoundary: true }), ...options }, client);
+    const results = use(_variables, { throwOnError: true, ...options }, client);
   
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
     const finalLoading = loading || defaultLoading;
-
-    const status = results.status as QueryStatusWithPending;
   
-    if (finalHasLoading && (status === 'loading' || status === 'pending')) {
+    if (finalHasLoading && results.status === 'pending') {
       return finalLoading;
     }
   
@@ -98,8 +94,9 @@ export function defineUseInfiniteQueryWithExtensions<TVariables extends QueryKey
       ...options
     } as UseInfiniteQueryOptions<TQueryFnData, TError, T, TVariables>;
 
-    // @ts-expect-error Call the useQuery hook with the queryKey and the mergedOptions
+    // @ts-ignore Call the useQuery hook with the queryKey and the mergedOptions
     return useInfiniteQuery<TQueryFnData, TError, T, TVariables>({
+      // @ts-ignore
       queryKey,
       ...mergedOptions
     }, client);
@@ -114,14 +111,12 @@ export function defineUseInfiniteQueryWithExtensions<TVariables extends QueryKey
     // organize the variables into an array and fix type mismatches caused by path and body props
     const _variables = [path, body, ...(Array.isArray(variables) ? variables : [variables])].filter(Boolean) as TVariableFn<TVariables> | TVariableFn<TVariables>[] | TVariables;
 
-    const results = use(_variables, { ...(detectReactQueryVersion() === 5 ? { throwOnError: true } : { useErrorBoundary: true }), ...options }, client);
+    const results = use(_variables, { throwOnError: true, ...options }, client);
 
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
     const finalLoading = loading || defaultLoading;
 
-    const status = results.status as QueryStatusWithPending;
-
-    if (finalHasLoading && (status === 'loading' || status === 'pending')) {
+    if (finalHasLoading && results.status === 'pending') {
       return finalLoading;
     }
 
