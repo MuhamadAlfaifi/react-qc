@@ -7,7 +7,8 @@
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages"
+    "url": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages",
+    "directory": "react-qc5"
   },
   "license": "MIT",
   "keywords": [
