@@ -1,32 +1,18 @@
 import { QueryClient, QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { ReactNode } from 'react';
-import { defaultKeyFn, useQcDefaults } from 'common';
+import { defaultKeyFn, useQcDefaults, useQcExtensions } from 'common';
 import type { Body, Client, ExcludeFirst, ExcludeFirstTwo, LoadingProps, Path, RenderProps, Variables } from 'common';
 
-export function wrap<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData>(
-  wrappedHook: typeof useQuery
-): ReturnType<typeof defineUseQuery<TVariables, TQueryFnData, TError, TData>>;
-
-export function wrap<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData, TQueryData = TQueryFnData, TPageParam = unknown>(
-  wrappedHook: typeof useInfiniteQuery
-): ReturnType<typeof defineUseInfiniteQuery<TVariables, TQueryFnData, TError, TData, TQueryData, TPageParam>>;
-
-export function wrap<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData, TQueryData = TQueryFnData, TPageParam = unknown>(wrappedHook: any): any {
-  if (wrappedHook === useQuery) {
-    return defineUseQuery<TVariables, TQueryFnData, TError, TData>;
-  }
-
-  if (wrappedHook === useInfiniteQuery) {
-    return defineUseInfiniteQuery<TVariables, TQueryFnData, TError, TData, TQueryData, TPageParam>;
-  }
-
-  throw new Error('wrap() only accepts useQuery or useInfiniteQuery');
-}
-
-export function defineUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData>(
+export function wrapUseQueryWithExtensions<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData>(
   defaultOptions: Omit<UseQueryOptions<TQueryFnData, TError, TData, TVariables>, 'queryKey'> | UseQueryOptions<TQueryFnData, TError, TData, TVariables>,
   keyFn: any = defaultKeyFn
 ) {
+  function useKeyFn(variables: Variables<TVariables>) {
+    const { extensions, useExtensions } = useQcExtensions();
+
+    return keyFn(variables, extensions || useExtensions?.() || {});
+  }
+
   function use<T = TData>(
     variables: Variables<TVariables>,
     options?: Omit<UseQueryOptions<TQueryFnData, TError, T, TVariables>, 'queryKey'>,
@@ -36,7 +22,7 @@ export function defineUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnD
     /**
      * Create the query key using user provided keyFn function
      */
-    const queryKey = keyFn(variables);
+    const queryKey = useKeyFn(variables);
 
     /**
      * Combine the defaultOptions and the options provided at runtime
@@ -100,16 +86,22 @@ export function defineUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnD
 
   return Object.assign(Component, {
     use, 
-    useKeyFn: keyFn,
+    useKeyFn,
     keyFn,
     defaultOptions,
   });
 }
 
-export function defineUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData, TQueryData = TQueryFnData, TPageParam = unknown>(
+export function wrapUseInfiniteQueryWithExtensions<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData, TQueryData = TQueryFnData, TPageParam = unknown>(
   defaultOptions: Omit<UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TVariables, TPageParam>, 'queryKey'> | UseInfiniteQueryOptions<TQueryFnData, TError, TData, TQueryData, TVariables, TPageParam>,
   keyFn: any = defaultKeyFn
 ) {
+  function useKeyFn(variables: Variables<TVariables>) {
+    const { extensions, useExtensions } = useQcExtensions();
+
+    return keyFn(variables, extensions || useExtensions?.() || {});
+  }
+
   function use<T = TData>(
     variables: Variables<TVariables>,
     options?: Omit<UseInfiniteQueryOptions<TQueryFnData, TError, T, TQueryData, TVariables, TPageParam>, 'queryKey' | 'initialPageParam' | 'getNextPageParam'>,
@@ -118,7 +110,7 @@ export function defineUseInfiniteQuery<TVariables extends QueryKey = QueryKey, T
     /**
      * Create the query key using user provided keyFn function
      */
-    const queryKey = keyFn(variables);
+    const queryKey = useKeyFn(variables);
 
     /**
      * Combine the defaultOptions and the options provided at runtime
@@ -182,7 +174,7 @@ export function defineUseInfiniteQuery<TVariables extends QueryKey = QueryKey, T
   
   return Object.assign(Component, {
     use, 
-    useKeyFn: keyFn,
+    useKeyFn,
     keyFn,
     defaultOptions,
   });

@@ -1,2 +1,3 @@
-export * from './define';
-export * from './define-with-extensions';
+export * from './wrap';
+export * from './wrap-with-extensions';
+export * from 'common';
