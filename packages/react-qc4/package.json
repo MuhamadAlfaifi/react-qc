@@ -1,13 +1,13 @@
 {
-  "name": "common",
-  "private": true,
-  "version": "0.0.0",
-  "description": "react-qc wraps useQuery/useInfiniteQuery hooks and give you a component with loading, error, and queryKey creation flexibility.",
+  "name": "react-qc4",
+  "version": "0.0.1",
+  "description": "Lightweight @tanstack/react-query wrapper that provides error/loading, and more...",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages"
+    "url": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages",
+    "directory": "react-qc4"
   },
   "license": "MIT",
   "keywords": [
@@ -35,13 +35,13 @@
     "test": "vitest --watch"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.0.0",
+    "@tanstack/react-query": "^4.0.0",
     "react": "^16.8.0 || ^17 || ^18",
     "react-dom": "^16.8.0 || ^17 || ^18",
     "react-error-boundary": "^4.0.11"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^5.0.0",
+    "@tanstack/react-query": "^4.0.0",
     "react": "^16.8.0 || ^17 || ^18",
     "react-dom": "^16.8.0 || ^17 || ^18"
   },
