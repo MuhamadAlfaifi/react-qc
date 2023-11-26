@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     dts({
       insertTypesEntry: true,
-  }),
+    }),
   ],
   resolve: {
     alias: {

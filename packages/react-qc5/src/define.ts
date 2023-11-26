@@ -3,6 +3,26 @@ import { ReactNode } from 'react';
 import { defaultKeyFn, useQcDefaults } from 'common';
 import type { Body, Client, ExcludeFirst, ExcludeFirstTwo, LoadingProps, Path, RenderProps, Variables } from 'common';
 
+export function wrap<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData>(
+  wrappedHook: typeof useQuery
+): ReturnType<typeof defineUseQuery<TVariables, TQueryFnData, TError, TData>>;
+
+export function wrap<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData, TQueryData = TQueryFnData, TPageParam = unknown>(
+  wrappedHook: typeof useInfiniteQuery
+): ReturnType<typeof defineUseInfiniteQuery<TVariables, TQueryFnData, TError, TData, TQueryData, TPageParam>>;
+
+export function wrap<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData, TQueryData = TQueryFnData, TPageParam = unknown>(wrappedHook: any): any {
+  if (wrappedHook === useQuery) {
+    return defineUseQuery<TVariables, TQueryFnData, TError, TData>;
+  }
+
+  if (wrappedHook === useInfiniteQuery) {
+    return defineUseInfiniteQuery<TVariables, TQueryFnData, TError, TData, TQueryData, TPageParam>;
+  }
+
+  throw new Error('wrap() only accepts useQuery or useInfiniteQuery');
+}
+
 export function defineUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnData = any, TError = any, TData = TQueryFnData>(
   defaultOptions: Omit<UseQueryOptions<TQueryFnData, TError, TData, TVariables>, 'queryKey'> | UseQueryOptions<TQueryFnData, TError, TData, TVariables>,
   keyFn: any = defaultKeyFn
