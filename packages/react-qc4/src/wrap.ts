@@ -1,5 +1,4 @@
 import { QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { ReactNode } from 'react';
 import { defaultKeyFn, useQcDefaults } from 'common';
 import type { Body, ExcludeFirst, ExcludeFirstTwo, LoadingProps, Path, RenderProps, Variables } from 'common';
 
@@ -36,13 +35,13 @@ export function wrapUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnDat
   
   function Component<T = TData>(props:
     { path: Path<TVariables>, body: Body<TVariables>, variables?: Variables<ExcludeFirstTwo<TVariables>> } & CommonProps<T>
-  ): ReactNode;
+  ): any;
   function Component<T = TData>(props:
     { path: Path<TVariables>, variables?: Variables<ExcludeFirst<TVariables>> } & CommonProps<T>
-  ): ReactNode;
+  ): any;
   function Component<T = TData>(props:
     { variables?: Variables<TVariables> } & CommonProps<T>
-  ): ReactNode;
+  ): any;
 
   function Component<T = TData>(
     { path, body, variables, hasLoading, loading, render, children, ...options }:
@@ -118,13 +117,13 @@ export function wrapUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQu
 
   function Component<T = TData>(props:
     { path: Path<TVariables>, body: Body<TVariables>, variables?: Variables<ExcludeFirstTwo<TVariables>> } & CommonProps<T>
-  ): ReactNode;
+  ): any;
   function Component<T = TData>(props:
     { path: Path<TVariables>, variables?: Variables<ExcludeFirst<TVariables>> } & CommonProps<T>
-  ): ReactNode;
+  ): any;
   function Component<T = TData>(props:
     { variables?: Variables<TVariables> } & CommonProps<T>
-  ): ReactNode;
+  ): any;
 
   function Component<T = TData>(
     { path, body, variables, hasLoading, loading, render, children, ...options }:
