@@ -107,6 +107,7 @@ export function wrapUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnDat
     useKeyFn,
     keyFn,
     defaultOptions,
+    _extensions,
   });
 }
 
@@ -209,5 +210,6 @@ export function wrapUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQu
     useKeyFn,
     keyFn,
     defaultOptions,
+    _extensions,
   });
 }
