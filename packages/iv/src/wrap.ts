@@ -40,7 +40,7 @@ export function wrapUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnDat
     /**
      * Create the query key using user provided keyFn function
      */
-    const queryKey = keyFn(variables);
+    const queryKey = useKeyFn(variables);
 
     /**
      * Combine the defaultOptions and the options provided at runtime
@@ -143,7 +143,7 @@ export function wrapUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQu
     /**
      * Create the query key using user provided keyFn function
      */
-    const queryKey = keyFn(variables);
+    const queryKey = useKeyFn(variables);
 
     /**
      * Combine the defaultOptions and the options provided at runtime
