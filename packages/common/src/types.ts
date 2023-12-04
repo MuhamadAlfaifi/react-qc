@@ -15,12 +15,9 @@ export type QCDefaultsContext = {
 
 export type QCDefaultsProviderProps = QCDefaultsContext & { children?: ReactNode };
 
-export type QCExtensionsContext<T = Record<string, unknown>> = {
-  extensions?: T,
-  useExtensions?: () => T,
-}
+export type QCExtensionsContext<T = Record<string, any>> = T | (() => T);
 
-export type QCExtensionsProviderProps<T> = QCExtensionsContext<T> & { children?: ReactNode };
+export type QCExtensionsProviderProps<T> = { extensions: QCExtensionsContext<T>, children: ReactNode };
 
 export type TCatchProps = { error?: QCError, children?: ReactNode };
 

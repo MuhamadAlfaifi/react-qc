@@ -24,12 +24,12 @@ export function wrapUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnDat
 
   function useKeyFn(variables: Variables<TVariables>) {
     if (!_extensions) {
-      return keyFn(variables);
+      return keyFn(variables, {});
     }
 
-    const { extensions, useExtensions } = useQcExtensions();
+    const extensions = useQcExtensions();
 
-    return keyFn(variables, extensions || useExtensions?.() || {});
+    return keyFn(variables, (typeof extensions === 'function' ? extensions() : extensions) || {});
   }
 
   function use<T = TData>(
@@ -128,12 +128,12 @@ export function wrapUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQu
 
   function useKeyFn(variables: Variables<TVariables>) {
     if (!_extensions) {
-      return keyFn(variables);
+      return keyFn(variables, {});
     }
 
-    const { extensions, useExtensions } = useQcExtensions();
+    const extensions = useQcExtensions();
 
-    return keyFn(variables, extensions || useExtensions?.() || {});
+    return keyFn(variables, (typeof extensions === 'function' ? extensions() : extensions) || {});
   }
 
   function use<T = TData>(

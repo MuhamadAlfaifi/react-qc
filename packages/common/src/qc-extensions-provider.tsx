@@ -4,19 +4,24 @@ import type {
   QCExtensionsProviderProps, 
 } from './types';
 
-const context = createContext<QCExtensionsContext>({
-  extensions: undefined,
-  useExtensions: undefined,
-});
+function createExtensionsContext<T>(defaultValue: T) {
+  const context = createContext<QCExtensionsContext<T>>(defaultValue);
+  
+  function useQcExtensions() {
+    return useContext(context);
+  }
 
-export function useQcExtensions() {
-  return useContext<QCExtensionsContext>(context);
+  function QcExtensionsProvider({ extensions, children }: QCExtensionsProviderProps<T>) {
+    return (
+      <context.Provider value={extensions}>
+        {children}
+      </context.Provider>
+    );
+  }
+
+  return { useQcExtensions, QcExtensionsProvider } as const;
 }
 
-export function QcExtensionsProvider({ extensions, useExtensions, children }: QCExtensionsProviderProps<any>) {
-  return (
-    <context.Provider value={{ extensions, useExtensions }}>
-      {children}
-    </context.Provider>
-  );
-}
+const { useQcExtensions, QcExtensionsProvider } = createExtensionsContext({});
+
+export { useQcExtensions, QcExtensionsProvider };
