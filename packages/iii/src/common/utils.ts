@@ -30,3 +30,11 @@ export const parameters = (params: any[] | URLSearchParams = []) => (searchParam
 
   return selection;
 };
+
+export function s(strings: TemplateStringsArray, ...keys: string[]) {
+  return ({ searchParams }: { searchParams: URLSearchParams }) => {
+    const param = (idx: number) => searchParams.get(keys[idx] || '') || '';
+    
+    return strings.reduce((acc, str, i) => `${acc}${str}${param(i)}`, '');
+  };
+}
