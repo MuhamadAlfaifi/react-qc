@@ -427,6 +427,19 @@ function MyComponent() {
 }
 ```
 
+> 🚨  IMPORTANT  
+> for extensions: You need to use 
+> wrapUseQueryWithExtensions, or 
+> wrapUseInfiniteQueryWithExtensions when defining your query
+> ```tsx
+> import { 
+>  ...
+>  wrapUseQueryWithExtensions,
+>  wrapUseInfiniteQueryWithExtensions,
+>  ...
+> } from 'react-qc-iv';
+> ```
+
 # Advanced: add extensions
 
 ```tsx
