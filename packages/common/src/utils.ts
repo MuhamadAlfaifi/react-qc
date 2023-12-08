@@ -31,10 +31,20 @@ export const parameters = (params: any[] | URLSearchParams = []) => (searchParam
   return selection;
 };
 
+export function interlace(a: TemplateStringsArray, b: string[] = []): string[] {
+  const length = a.length + b.length;
+
+  return Array.from({ length }, (_, idx) => idx % 2 === 0 ? a[idx / 2] : b[(idx - 1) / 2]);
+}
+
 export function s(strings: TemplateStringsArray, ...keys: string[]) {
   return ({ searchParams }: { searchParams: URLSearchParams }) => {
-    const param = (idx: number) => searchParams.get(keys[idx] || '') || '';
+    const values = keys.map((x: string) => {
+      const [key, defaultValue = ''] = x.split('!');
+      
+      return searchParams.get(key) || defaultValue;
+    });
     
-    return strings.reduce((acc, str, i) => `${acc}${str}${param(i)}`, '');
+    return interlace(strings, values).join('');
   };
 }
