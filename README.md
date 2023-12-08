@@ -482,7 +482,7 @@ since the first variable is a callback function the default keyFn will call it f
 # Advanced: use extensions with custom keyFn
 
 ```tsx
-import { wrapUseQuery } from 'react-qc-iv';
+import { wrapUseQueryWithExtensions } from 'react-qc-iv';
 import type { QueryKey } from '@tanstack/react-query';
 
 type TKeyFn = (variables: unknown[], extensions: { searchParams: URLSearchParams, params: Record<string, any> }) => QueryKey;
@@ -494,7 +494,7 @@ const customKeyFn: TKeyFn = (variables, extensions) => {
   return [path, body, params, searchParams];
 }
 
-export const Post = wrapUseQuery<[string, Record<string, string>]>({
+export const Post = wrapUseQueryWithExtensions<[string, Record<string, string>]>({
   queryFn: async ({ signal, queryKey: [url, body, params, searchParams] }) => {
     ...
   },
