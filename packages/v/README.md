@@ -466,14 +466,16 @@ function App() {
 
 # Advanced: use extensions with default keyFn
 
+pass a callback function in place of a variable and it will be called with extensions to create that specific variable
+```tsx
+<Post variables={[(extensions) => `/path/${extensions.searchParams.get('id')}`, { ...stuff  }]} ...>...</Post>
+```   
+
+for building strings using react router like extensions.searchParams.get('id'), you can use `s` template literal tag for substituting searchParams values in the string and Optionally, you can add fallback with ! for example s`/path/${'id!0'}` will fallback to 0 if id is not found in searchParams
 ```tsx
 import { s } from 'react-qc-iv';
 
-// pass a callback function as the first variable and it will be called with extensions to create that specific variable
-<Post variables={[(extensions) => `/path/${extensions.searchParams.get('id')}`, { ...stuff  }]} ...>...</Post>
-
-// for building the path from react router extensions.searchParams.get('id') you can use `s`` template literal tag instead
-<Post path={s`/path/${'id'}`} body={{ ...stuff  }} ...>...</Post>
+<Post path={s`/path/${'id!0'}`} body={{ ...stuff  }} ...>...</Post>
 ```
 
 since the first variable is a callback function the default keyFn will call it for you with extensions as the first parameter
@@ -482,7 +484,7 @@ since the first variable is a callback function the default keyFn will call it f
 # Advanced: use extensions with custom keyFn
 
 ```tsx
-import { wrapUseQuery } from 'react-qc-iv';
+import { wrapUseQueryWithExtensions } from 'react-qc-iv';
 import type { QueryKey } from '@tanstack/react-query';
 
 type TKeyFn = (variables: unknown[], extensions: { searchParams: URLSearchParams, params: Record<string, any> }) => QueryKey;
@@ -494,7 +496,7 @@ const customKeyFn: TKeyFn = (variables, extensions) => {
   return [path, body, params, searchParams];
 }
 
-export const Post = wrapUseQuery<[string, Record<string, string>]>({
+export const Post = wrapUseQueryWithExtensions<[string, Record<string, string>]>({
   queryFn: async ({ signal, queryKey: [url, body, params, searchParams] }) => {
     ...
   },
