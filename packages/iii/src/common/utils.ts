@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useCallback, useMemo, useRef } from 'react';
 import { FallbackProps } from 'react-error-boundary';
 import { QCError } from './types';
 
@@ -14,7 +14,13 @@ export const parameters = (params: any[] | URLSearchParams = []) => (searchParam
     return Array.from(_searchParams);
   }
 
-  let selection = _params.filter(i => typeof i === 'string').flatMap((i: string) => _searchParams.getAll(i).map((value) => [i, value]));
+  let selection = _params.filter(i => typeof i === 'string').flatMap((i: string) => {
+    const [key, defaultValue = ''] = i.split('!');
+
+    const values = _searchParams.getAll(i).map((value) => [i, value]);
+
+    return values.length === 0 && defaultValue ? [[key, defaultValue]] : values;
+  });
 
   if (selection.length === 0) {
     selection = Array.from(_searchParams);
@@ -47,4 +53,27 @@ export function s(strings: TemplateStringsArray, ...keys: string[]) {
     
     return interlace(strings, values).join('');
   };
+}
+
+export function useSearch(collection = [], { useSearchParams }: any) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const stableRef = useRef({ searchParams });
+  
+  stableRef.current.searchParams = searchParams;
+
+  const updater = useCallback((collection: URLSearchParams | ([string, string] | string)[]) => {
+    Array.from(collection).forEach(item => {
+      if (!Array.isArray(item)) {
+        stableRef.current.searchParams.delete(item);
+      } else {
+        stableRef.current.searchParams.set(...item);
+      }
+    });
+
+    setSearchParams(stableRef.current.searchParams);
+  }, []);
+
+  const search = useMemo(() => new URLSearchParams(parameters(collection)(searchParams)), [searchParams]);
+
+  return [search, updater];
 }
