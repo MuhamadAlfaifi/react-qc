@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useMemo, useRef } from 'react';
+import { ReactNode } from 'react';
 import { FallbackProps } from 'react-error-boundary';
 import { QCError } from './types';
 
@@ -53,27 +53,4 @@ export function s(strings: TemplateStringsArray, ...keys: string[]) {
     
     return interlace(strings, values).join('');
   };
-}
-
-export function useSearch(collection = [], { useSearchParams }: any) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const stableRef = useRef({ searchParams });
-  
-  stableRef.current.searchParams = searchParams;
-
-  const updater = useCallback((collection: URLSearchParams | ([string, string] | string)[]) => {
-    Array.from(collection).forEach(item => {
-      if (!Array.isArray(item)) {
-        stableRef.current.searchParams.delete(item);
-      } else {
-        stableRef.current.searchParams.set(...item);
-      }
-    });
-
-    setSearchParams(stableRef.current.searchParams);
-  }, []);
-
-  const search = useMemo(() => new URLSearchParams(parameters(collection)(searchParams)), [searchParams]);
-
-  return [search, updater];
 }
