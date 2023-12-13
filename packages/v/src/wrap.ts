@@ -189,7 +189,9 @@ export function wrapUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQu
     /**
      * fetch data and throw to nearest error boundary if queryFn fails
      */
-    const results = use(_variables, { throwOnError: true, ...options }, client);
+    const results = use(_variables, { throwOnError: (_, query: any) => {
+      return query?.data?.pages?.length === 0;
+    }, ...options }, client);
 
     /**
      * if data is pending render the loading component
