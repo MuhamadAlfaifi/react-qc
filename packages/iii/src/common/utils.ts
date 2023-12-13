@@ -46,7 +46,7 @@ export function interlace(a: TemplateStringsArray, b: string[] = []): string[] {
 export function s(strings: TemplateStringsArray, ...keys: string[]) {
   return ({ searchParams }: { searchParams: URLSearchParams }) => {
     const values = keys.map((x: string) => {
-      const [key, defaultValue = ''] = x.split('!');
+      const [key, defaultValue = key] = x.split('!');
       
       return searchParams.get(key) || defaultValue;
     });

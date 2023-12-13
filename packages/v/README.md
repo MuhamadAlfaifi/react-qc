@@ -11,13 +11,13 @@ type TName = { title: string, first: string, last: string }
 
 const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
 
-// regualr usage
+// regular usage
 const info = Get.use(['/api/users/search', { ...searchFilters }], { select: names });
 
 // regular usage with loading/error elements
 <Catch error={<p>an error occured!</p>}>
   <Post path="/api/users/search" body={{ ...searchFilters }} loading={<p>loading...</p>} select={names}>
-    {(data) => (
+    {(data) => ( // data is TName[]
       <ul>
         {data.map(name => 
           <li key={name}>{name.first} - {name.last}</li>
@@ -318,7 +318,7 @@ function MyComponent() {
 ```tsx
 import { wrapUseInfiniteQuery } from 'react-qc-iv';
 
-export const Resource = wrapUseInfiniteQuery<[string, Record<string, any>]>({
+export const Paginate = wrapUseInfiniteQuery<[string, Record<string, any>]>({
   queryFn: async ({ signal, queryKey: [url, parameters], pageParam, meta: { initialPageParam = 0 } = {} }) => {
     const search = new URLSearchParams();
 
@@ -340,25 +340,25 @@ export const Resource = wrapUseInfiniteQuery<[string, Record<string, any>]>({
 # Use infinite query
 
 ```tsx
-import { Resource } from 'path/to/Resource';
+import { Paginate } from 'path/to/Paginate';
 
-// use `Resource` as a component
+// use `Paginate` as a component
 function MyComponent() {
   return (
-    <Resource path="https://randomuser.me/api" variables={{ results: 10 }}>
+    <Paginate path="https://randomuser.me/api" variables={{ results: 10 }}>
       {(data, { fetchNextPage, hasNextPage }) => (
         <div>
           <div>{JSON.stringify(data)}</div>
           <button onClick={() => fetchNextPage()} disabled={!hasNextPage}>fetch next page</button>
         </div>
       )}
-    </Resource>
+    </Paginate>
   );
 }
 
-// use `Resource` as a hook
+// use `Paginate` as a hook
 function MyComponent() {
-  const { data, fetchNextPage, hasNextPage } = Resource.use(['https://randomuser.me/api', { results: 10 }]);
+  const { data, fetchNextPage, hasNextPage } = Paginate.use(['https://randomuser.me/api', { results: 10 }]);
 
   return (
     <div>
@@ -372,7 +372,7 @@ function MyComponent() {
 # Use infinite query with custom data function
 
 ```tsx
-import { Resource } from 'path/to/Resource';
+import { Paginate } from 'path/to/Paginate';
 
 type TName = {
   title: string;
@@ -395,7 +395,7 @@ export function pagesNames(pages: unknown): TName[] {
 // pass data function prop
 function MyComponent() {
   return (
-    <Resource path="https://randomuser.me/api" variables={{ results: 10 }} select={pagesNames}>
+    <Paginate path="https://randomuser.me/api" variables={{ results: 10 }} select={pagesNames}>
       {(data, { fetchNextPage, hasNextPage }) => (
         <div>
           <ul>
@@ -406,13 +406,13 @@ function MyComponent() {
           <li><button onClick={() => fetchNextPage()} disabled={!hasNextPage}>fetch next page</button></li>
         </div>
       )}
-    </Resource>
+    </Paginate>
   );
 }
 
 // pass data function parameter
 function MyComponent() {
-  const { data, fetchNextPage, hasNextPage } = Resource.use(['https://randomuser.me/api', { results: 10 }], { select: pagesNames });
+  const { data, fetchNextPage, hasNextPage } = Paginate.use(['https://randomuser.me/api', { results: 10 }], { select: pagesNames });
 
   return (
     <div>
@@ -427,8 +427,10 @@ function MyComponent() {
 }
 ```
 
+# Advanced: add extensions
+
 > 🚨  IMPORTANT  
-> for extensions: You need to use 
+> for extensions: You need to define 
 > wrapUseQueryWithExtensions, or 
 > wrapUseInfiniteQueryWithExtensions when defining your query
 > ```tsx
@@ -439,8 +441,6 @@ function MyComponent() {
 >  ...
 > } from 'react-qc-iv';
 > ```
-
-# Advanced: add extensions
 
 ```tsx
 import { QcExtensionsProvider } from 'react-qc-iv';
