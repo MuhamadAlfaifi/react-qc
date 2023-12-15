@@ -2,9 +2,9 @@ import type { QueryClient, QueryKey, QueryStatus } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { FallbackProps } from 'react-error-boundary';
 
-export type QCError = ((props: FallbackProps) => ReactNode) | ReactNode;
+export type QCError = ((props: FallbackProps & { retry?: FallbackProps['resetErrorBoundary'] }) => ReactNode) | ReactNode;
 
-export type QCErrorRender = (props: FallbackProps) => ReactNode;
+export type QCErrorRender = (props: FallbackProps & { retry?: FallbackProps['resetErrorBoundary'] }) => ReactNode;
 
 export type QCLoading = ReactNode;
 

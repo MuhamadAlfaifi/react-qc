@@ -7,16 +7,24 @@ Lightweight @tanstack/react-query wrapper that provides error/loading, and more.
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/MuhamadAlfaifi/react-qc/graphs/commit-activity)
 
 ```javascript
+const Get = wrapUseQuery<[string, Record<string, any> | undefined]>({
+  queryFn: async ({ signal, queryKey: [path, search = {}] }) => {
+    ...
+  }
+});
+
 type TName = { title: string, first: string, last: string }
 
-const names = (data): TName[] => data?.results?.map((item) => item.name) || [];
+type Response = { results: { name: TName, ... }[] }
 
-// regular usage
-const info = Get.use(['/api/users/search', { ...searchFilters }], { select: names });
+const names = (data: Response) => data.results.map((item) => item.name) || [];
+
+// regular usage info.data is TName[] | undefined
+const info = Get.use(['https://randomuser.me/api', { results: 10 }], { select: names });
 
 // regular usage with loading/error elements
 <Catch error={<p>an error occured!</p>}>
-  <Post path="/api/users/search" body={{ ...searchFilters }} loading={<p>loading...</p>} select={names}>
+  <Get path="https://randomuser.me/api" variables={{ results: 10 }} loading={<p>loading...</p>} select={names}>
     {(data) => ( // data is TName[]
       <ul>
         {data.map(name => 
@@ -24,14 +32,14 @@ const info = Get.use(['/api/users/search', { ...searchFilters }], { select: name
         )}
       </ul>
     )}
-  </Post>
+  </Get>
 </Catch>
 ```
 
 ## Features
 - abstracts query key creation with callbacks
 - optional keyFn for custom query key creation
-- optional syntactic sugar path, body syntax for variables[0] and variables[1]
+- optional syntactic sugar path, body props for variables[0] and variables[1]
 - wrapped hook has error/loading elements via error/loading props
 
 
@@ -47,6 +55,7 @@ const info = Get.use(['/api/users/search', { ...searchFilters }], { select: name
 - [Add retry button](#add-retry-button)
 - [Define custom variables](#define-custom-variables)
 - [Pass variables](#pass-variables)
+- [Optional: Syntactic sugar](#optional-syntactic-sugar)
 - [Custom data function](#custom-data-function)
 - [Pagination](#pagination)
 - [Use infinite query](#use-infinite-query)
@@ -198,7 +207,7 @@ import { Get } from 'path/to/Get';
 
 function App() {
   return (
-    <QcProvider loading={'loading...'} error={({ resetErrorBoundary }) => <button onClick={resetErrorBoundary}>retry</button>}>
+    <QcProvider loading={'loading...'} error={({ retry }) => <button onClick={retry}>retry</button>}>
       <MyComponent />
     </QcProvider>
   );
@@ -211,14 +220,11 @@ function App() {
 import { wrapUseQuery } from 'react-qc-iv';
 import { useQuery } from '@tanstack/react-query';
 
-export const Post = wrapUseQuery<[string, Record<string, any>]>({
-  queryFn: async ({ signal, queryKey: [path, body] }) => {
+export const Get = wrapUseQuery<[string, Record<string, any> | undefined]>({
+  queryFn: async ({ signal, queryKey: [path, search = {}] }) => {
+    const searchParams = new URLSearchParams(Object.entries(search));
 
-    return await fetch(path, {
-      method: 'post',
-      body: JSON.stringify(body),
-      signal
-    }).then((res) => res.json());
+    return await fetch(path + '?' + searchParams.toString(), { signal }).then((res) => res.json());
   }
 });
 
@@ -227,24 +233,24 @@ export const Post = wrapUseQuery<[string, Record<string, any>]>({
 # Pass variables
 
 ```tsx
-import { Post } from 'path/to/Post';
+import { Get } from 'path/to/Get';
 
-// use `Post` as a component
+// use `Get` as a component
 function MyComponent() {
   return (
-    <Post variables={['https://httpbin.org/post', { echo: 'body' }]}> // typescript will infer variables from generic parameter
+    <Get variables={['https://randomuser.me/api', { results: 10 }]}> {/* variables prop type here is the generic parameter associated with Get */}
       {(data) => (
         <div>
           {JSON.stringify(data)}
         </div>
       )}
-    </Post>
+    </Get>
   );
 }
 
-// use `Post` as a hook
+// use `Get` as a hook
 function MyComponent() {
-  const { data } = Post.use(['https://httpbin.org/post', { echo: 'body' }]); // typescript will infer variables from generic parameter
+  const { data } = Get.use(['https://randomuser.me/api', { results: 10 }]); // variables prop type here is the generic parameter associated with Get
 
   return (
     <div>
@@ -254,29 +260,43 @@ function MyComponent() {
 }
 ```
 
-Note: you can take variables[0] and put it in path prop and variables[1] and put it in body prop like `<Post path={'https://httpbin.org/post'} body={{ echo: 'body' }}>...</Post>`
+# Optional: Syntactic sugar
 
+optional path prop as variables[0] and body prop as variables[1]
+or
+optional path prop as variables[0] and variables as variables[1]
 
-Note: you can also accept more variables there is no limit to the array variables
+```tsx
+import { Get } from 'path/to/Get';
+
+// use `Get` as a component
+function MyComponent() {
+  return (
+    <Get path="https://randomuser.me/api" variables={{ results: 10 }}>
+      {(data) => (
+        <div>
+          {JSON.stringify(data)}
+        </div>
+      )}
+    </Get>
+  );
+}
+```
 
 # Custom data function
 
 ```tsx
 import { Get } from 'path/to/Get';
 
-type TName = {
-  title: string;
-  first: string;
-  last: string;
-};
+type TName = { title: string, first: string, last: string }
 
-type TItem = {
-  name: TName;
+type Response = {
+  results: {
+    name: TName
+  }[]
 }
 
-function names(data: unknown): TName[] {
-  return (data as { results: TItem[] })?.results?.map((item) => item.name) || [];
-}
+const names = (data: Response) => data.results.map((item) => item.name) || [];
 
 // pass select function prop
 function MyComponent() {
@@ -366,30 +386,23 @@ function MyComponent() {
 # Use infinite query with custom data function
 
 ```tsx
+import { type InfiniteData } from '@tanstack/react-query';
 import { Paginate } from 'path/to/Paginate';
 
-type TName = {
-  title: string;
-  first: string;
-  last: string;
-};
+type TName = { title: string, first: string, last: string }
 
-type TItem = {
-  name: TName;
+type Response = {
+  results: {
+    name: TName
+  }[]
 }
 
-export function names(data: unknown): TName[] {
-  return (data as { results: TItem[] })?.results?.map((item) => item.name) || [];
-}
-
-export function pagesNames(pages: unknown): TName[] {
-  return (pages as unknown[])?.flatMap((page) => names(page)) || [];
-}
+const names = (data: InfiniteData<Response>) => data.pages.flatMap(page => data.results.map((item) => item.name));
 
 // pass data function prop
 function MyComponent() {
   return (
-    <Paginate path="https://randomuser.me/api" variables={{ results: 10 }} select={pagesNames}>
+    <Paginate path="https://randomuser.me/api" variables={{ results: 10 }} select={names}>
       {(data, { fetchNextPage, hasNextPage }) => (
         <div>
           <ul>
@@ -406,7 +419,7 @@ function MyComponent() {
 
 // pass data function parameter
 function MyComponent() {
-  const { data, fetchNextPage, hasNextPage } = Paginate.use(['https://randomuser.me/api', { results: 10 }], { select: pagesNames });
+  const { data, fetchNextPage, hasNextPage } = Paginate.use(['https://randomuser.me/api', { results: 10 }], { select: names });
 
   return (
     <div>
@@ -462,14 +475,14 @@ function App() {
 
 pass a callback function in place of a variable and it will be called with extensions to create that specific variable
 ```tsx
-<Post variables={[(extensions) => `/path/${extensions.searchParams.get('id')}`, { ...stuff  }]} ...>...</Post>
+<Get variables={[(extensions) => `/path/${extensions.searchParams.get('id')}`, { ...stuff  }]} ...>...</Get>
 ```   
 
 for building strings using react router like extensions.searchParams.get('id'), you can use `s` template literal tag for substituting searchParams values in the string and Optionally, you can add fallback with ! for example s`/path/${'id!0'}` will fallback to 0 if id is not found in searchParams
 ```tsx
 import { s } from 'react-qc-iv';
 
-<Post path={s`/path/${'id!0'}`} body={{ ...stuff  }} ...>...</Post>
+<Get path={s`/path/${'id!0'}`} body={{ ...stuff  }} ...>...</Get>
 ```
 
 since the first variable is a callback function the default keyFn will call it for you with extensions as the first parameter
@@ -490,7 +503,7 @@ const customKeyFn: TKeyFn = (variables, extensions) => {
   return [path, { body, params, searchParams: searchParams.toString() }];
 }
 
-export const Post = wrapUseQueryWithExtensions<[string, Record<string, any>]>({
+export const Get = wrapUseQueryWithExtensions<[string, Record<string, any>]>({
   queryFn: async ({ signal, queryKey: [url, { body, params, searchParams }] }) => {
     ...
   },
@@ -546,6 +559,38 @@ function MyComponent() {
         )}
       </Paginate>
     </Catch>
+  );
+}
+```
+
+# Extra: how to pass react query options?
+
+you can pass refetchInterval or any other react query options to the query by passing it as 2nd parameter to the hook, or directly pass refetchInterval as a prop to the component
+
+```tsx
+import { Get } from 'path/to/Get';
+
+// use `Get` as a component
+function MyComponent() {
+  return (
+    <Get path="https://randomuser.me/api" variables={{ results: 10 }} refetchInterval={1000}>
+      {(data) => (
+        <div>
+          {JSON.stringify(data)}
+        </div>
+      )}
+    </Get>
+  );
+}
+
+// use `Get` as a hook
+function MyComponent() {
+  const { data } = Get.use(['https://randomuser.me/api', { results: 10 }], { refetchInterval: 1000 });
+
+  return (
+    <div>
+      {JSON.stringify(data)}
+    </div>
   );
 }
 ```

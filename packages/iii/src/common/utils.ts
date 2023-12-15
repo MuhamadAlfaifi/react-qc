@@ -1,9 +1,7 @@
-import { ReactNode } from 'react';
-import { FallbackProps } from 'react-error-boundary';
-import { QCError } from './types';
+import { QCError, QCErrorRender } from './types';
 
-export function errorRender(x: QCError): (args: FallbackProps) => ReactNode {
-  return typeof x === 'function' ? x : () => x;
+export function errorRender(x: QCError): QCErrorRender {
+  return typeof x === 'function' ? (props) => x({ ...props, retry: props.resetErrorBoundary }) : () => x;
 }
 
 export function interlace(a: TemplateStringsArray, b: string[] = []): string[] {
