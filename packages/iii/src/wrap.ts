@@ -91,7 +91,7 @@ export function wrapUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnDat
      * if data is pending render the loading component
      */
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
-    const finalLoading = loading || defaultLoading;
+    const finalLoading = typeof loading === undefined ? defaultLoading : loading;
 
     if (finalHasLoading && results.status === 'loading') {
       return finalLoading;
@@ -195,7 +195,7 @@ export function wrapUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQu
      * if data is pending render the loading component
      */
     const finalHasLoading = typeof hasLoading === 'boolean' ? hasLoading : true;
-    const finalLoading = loading || defaultLoading;
+    const finalLoading = typeof loading === undefined ? defaultLoading : loading;
 
     if (finalHasLoading && results.status === 'loading') {
       return finalLoading;
