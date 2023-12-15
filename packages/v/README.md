@@ -29,11 +29,10 @@ const info = Get.use(['/api/users/search', { ...searchFilters }], { select: name
 ```
 
 ## Features
-- abstracts query key creation
+- abstracts query key creation with callbacks
 - optional keyFn for custom query key creation
-- optional path, body syntax for variables[0] and variables[1]
-- similar usage like normal hooks e.g. `Get.use([...etc])` in addition to `<Get variables={[...etc]}>...</Get>`
-- ui support error/loading elements via error/loading props
+- optional syntactic sugar path, body syntax for variables[0] and variables[1]
+- wrapped hook has error/loading elements via error/loading props
 
 
 # Table of Contents
@@ -48,7 +47,6 @@ const info = Get.use(['/api/users/search', { ...searchFilters }], { select: name
 - [Add retry button](#add-retry-button)
 - [Define custom variables](#define-custom-variables)
 - [Pass variables](#pass-variables)
-- [Optional: keyFn](#optional-keyfn)
 - [Custom data function](#custom-data-function)
 - [Pagination](#pagination)
 - [Use infinite query](#use-infinite-query)
@@ -56,6 +54,8 @@ const info = Get.use(['/api/users/search', { ...searchFilters }], { select: name
 - [Advanced: add extensions](#advanced-add-extensions)
 - [Advanced: use extensions with default keyFn](#advanced-use-extensions-with-default-keyfn)
 - [Advanced: use extensions with custom keyFn](#advanced-use-extensions-with-custom-keyfn)
+- [Extra: default key fn](#extra-default-key-fn)
+- [Extra: default error/loading apply only to first page](#extra-by-default-errorloading-apply-only-to-first-page)
 
 
 # Installation for @tanstack/react-query v5
@@ -64,11 +64,23 @@ const info = Get.use(['/api/users/search', { ...searchFilters }], { select: name
 npm install react-qc-v
 ```
 
+#### Requirements
+
+- react: ^18
+- react-dom: ^18
+- @tanstack/react-query: v5
+
 # Installation for @tanstack/react-query v4
 
 ```bash
 npm install react-qc-iv
 ```
+
+#### Requirements
+
+- react: ^16.8.0 || ^17 || ^18
+- react-dom: ^16.8.0 || ^17 || ^18
+- @tanstack/react-query: v4
 
 # Installation for react-query v3
 
@@ -76,11 +88,12 @@ npm install react-qc-iv
 npm install react-qc-iii
 ```
 
-### Requirements
+#### Requirements
 
 - react: ^16.8.0 || ^17 || ^18
 - react-dom: ^16.8.0 || ^17 || ^18
-- @tanstack/react-query: v3 || v4 || v5
+- react-query: v3
+
 
 # Define new query
 
@@ -245,25 +258,6 @@ Note: you can take variables[0] and put it in path prop and variables[1] and put
 
 
 Note: you can also accept more variables there is no limit to the array variables
-
-# Optional: keyFn
-
-```tsx
-import { wrapUseQuery } from 'react-qc-iv';
-import type { QueryKey } from '@tanstack/react-query';
-
-type TKeyFn = (variables: unknown[], extensions?: Record<string, any>) => QueryKey;
-
-const keyFn: TKeyFn = (variables, extensions = {}) => [{ url: variables[0], search: variables[1] }];
-
-export const Post = wrapUseQuery<[string, Record<string, any>]>({
-  queryFn: async ({ signal, queryKey: [{ url, search }] }) => {
-    ...
-  },
-}, keyFn);
-
-// if you do not have a customized keyFn we will use `(variables, extensions) => variables`
-```
 
 # Custom data function
 
@@ -493,12 +487,65 @@ const customKeyFn: TKeyFn = (variables, extensions) => {
   const [path, body] = variables;
   const { params, searchParams } = extensions;
 
-  return [path, body, params, searchParams];
+  return [path, { body, params, searchParams: searchParams.toString() }];
 }
 
-export const Post = wrapUseQueryWithExtensions<[string, Record<string, string>]>({
-  queryFn: async ({ signal, queryKey: [url, body, params, searchParams] }) => {
+export const Post = wrapUseQueryWithExtensions<[string, Record<string, any>]>({
+  queryFn: async ({ signal, queryKey: [url, { body, params, searchParams }] }) => {
     ...
   },
 }, customKeyFn);
+```
+
+# Extra: default key fn
+
+
+You can pass callbacks that generate the queryKey and the default keyFn will call them for you with optional extensions as the first parameter
+
+here is the imlementation of the default keyFn
+```tsx
+import { TVariableFn } from './types';
+import { QueryKey } from '@tanstack/react-query';
+
+export const defaultKeyFn = <T extends TVariableFn<unknown> | TVariableFn<unknown>[] | unknown[], Extensions = never>(variables: T, extensions: Extensions): QueryKey => {
+  if (typeof variables === 'function') {
+    return variables(extensions) as unknown as QueryKey;
+  }
+  
+  return variables.map((variable) => {
+    if (typeof variable === 'function') {
+      return variable(extensions);
+    }
+
+    return variable;
+  }) as unknown as QueryKey;
+};
+```
+
+# Extra: by default error/loading apply only to first page
+
+take the previous <Paginate /> example, the loading/error in case promise pending/rejected will not be shown on 2nd page and so on
+
+if first page is already rendered and next page rejected you should handle the error manually using `isFetchingNextPage` and `error` properties
+
+```tsx
+import { Paginate } from 'path/to/Paginate';
+
+// use `Paginate` as a component
+function MyComponent() {
+  return (
+    <Catch error={<p>first page rejected!</p>}>
+      <Paginate path="https://randomuser.me/api" loading={<p>first page spinner!</p>} variables={{ results: 10 }}>
+        {(data, { fetchNextPage, hasNextPage, isFetchingNextPage, error }) => (
+          <div>
+            <div>{JSON.stringify(data)}</div>
+            {hasNextPage 
+              ? <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>{error ? 'retry' : 'fetch'} next page</button> 
+              : <p>no more results.</p>}
+          </div>
+        )}
+      </Paginate>
+    </Catch>
+  );
+}
 ```
