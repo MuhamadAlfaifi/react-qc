@@ -8,6 +8,7 @@ Lightweight @tanstack/react-query wrapper that provides error/loading, and more.
 
 ```javascript
 const Get = wrapUseQuery<[string, Record<string, any> | undefined]>({
+  // no need to define queryKey now!
   queryFn: async ({ signal, queryKey: [path, search = {}] }) => {
     ...
   }
@@ -263,7 +264,9 @@ function MyComponent() {
 # Optional: Syntactic sugar
 
 optional path prop as variables[0] and body prop as variables[1]
+
 or
+
 optional path prop as variables[0] and variables as variables[1]
 
 ```tsx
@@ -482,7 +485,7 @@ for building strings using react router like extensions.searchParams.get('id'), 
 ```tsx
 import { s } from 'react-qc-iv';
 
-<Get path={s`/path/${'id!0'}`} body={{ ...stuff  }} ...>...</Get>
+<Get path={s`/path/${'id!0'}`} variables={{ ...stuff  }} ...>...</Get>
 ```
 
 since the first variable is a callback function the default keyFn will call it for you with extensions as the first parameter
@@ -573,7 +576,7 @@ import { Get } from 'path/to/Get';
 // use `Get` as a component
 function MyComponent() {
   return (
-    <Get path="https://randomuser.me/api" variables={{ results: 10 }} refetchInterval={1000}>
+    <Get path="https://randomuser.me/api" variables={{ results: 10 }} refetchInterval={5000}>
       {(data) => (
         <div>
           {JSON.stringify(data)}
@@ -585,7 +588,7 @@ function MyComponent() {
 
 // use `Get` as a hook
 function MyComponent() {
-  const { data } = Get.use(['https://randomuser.me/api', { results: 10 }], { refetchInterval: 1000 });
+  const { data } = Get.use(['https://randomuser.me/api', { results: 10 }], { refetchInterval: 5000 });
 
   return (
     <div>
