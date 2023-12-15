@@ -1,6 +1,6 @@
 {
   "name": "react-qc-v",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Lightweight @tanstack/react-query wrapper that provides error/loading, and more...",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages",
