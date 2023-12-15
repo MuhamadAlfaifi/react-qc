@@ -6,37 +6,6 @@ export function errorRender(x: QCError): (args: FallbackProps) => ReactNode {
   return typeof x === 'function' ? x : () => x;
 }
 
-export const parameters = (params: any[] | URLSearchParams = []) => (searchParams: URLSearchParams | any[] = []) => {
-  const _params = Array.from(params)
-  const _searchParams = new URLSearchParams(searchParams);
-
-  if (_params.length === 0) {
-    return Array.from(_searchParams);
-  }
-
-  let selection = _params.filter(i => typeof i === 'string').flatMap((i: string) => {
-    const [key, defaultValue = ''] = i.split('!');
-
-    const values = _searchParams.getAll(i).map((value) => [i, value]);
-
-    return values.length === 0 && defaultValue ? [[key, defaultValue]] : values;
-  });
-
-  if (selection.length === 0) {
-    selection = Array.from(_searchParams);
-  }
-
-  _params.filter(i => Array.isArray(i)).forEach((i: any[]) => {
-    const [key, value] = i;
-
-    if (value) {
-      selection.push([key, value]);
-    }
-  });
-
-  return selection;
-};
-
 export function interlace(a: TemplateStringsArray, b: string[] = []): string[] {
   const length = a.length + b.length;
 

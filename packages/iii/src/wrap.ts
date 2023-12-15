@@ -1,6 +1,6 @@
 import { QueryKey, UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult, useInfiniteQuery, useQuery } from 'react-query';
 import { defaultKeyFn, useQcDefaults, useQcExtensions } from '~/common';
-import type { Body, ExcludeFirst, ExcludeFirstTwo, LoadingProps, Path, RenderProps, Variables } from '~/common';
+import type { Body, ExcludeFirst, ExcludeFirstTwo, Extractable, LoadingProps, Path, RenderProps, Variables } from '~/common';
 
 /**
  * flag to determine whether to use extensions or not (default: false)
@@ -66,7 +66,7 @@ export function wrapUseQuery<TVariables extends QueryKey = QueryKey, TQueryFnDat
     { path: Path<TVariables>, variables?: Variables<ExcludeFirst<TVariables>> } & CommonProps<T>
   ): any;
   function Component<T = TData>(props:
-    { variables?: Variables<TVariables> } & CommonProps<T>
+    { variables?: Extractable<TVariables> | Variables<TVariables> } & CommonProps<T>
   ): any;
 
   function Component<T = TData>(
@@ -172,7 +172,7 @@ export function wrapUseInfiniteQuery<TVariables extends QueryKey = QueryKey, TQu
     { path: Path<TVariables>, variables?: Variables<ExcludeFirst<TVariables>> } & CommonProps<T>
   ): any;
   function Component<T = TData>(props:
-    { variables?: Variables<TVariables> } & CommonProps<T>
+    { variables?: Extractable<TVariables> | Variables<TVariables> } & CommonProps<T>
   ): any;
 
   function Component<T = TData>(

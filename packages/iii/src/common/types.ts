@@ -26,12 +26,14 @@ export type QueryStatusWithPending = QueryStatus | 'loading' | 'pending';
 export type TVariableFn<T> = (...args: any[]) => T;
 
 export type ExcludeFirst<T extends QueryKey> = T extends [any, ...infer Rest] 
-    ? Rest extends [infer Single] ? Single | [Single] : Rest 
-    : [];
+  ? Rest extends [infer Single] ? Single | [Single] : Rest 
+  : [];
 
 export type ExcludeFirstTwo<T extends QueryKey> = T extends [any, any, ...infer Rest] 
-    ? Rest extends [infer Single] ? Single | [Single] : Rest 
-    : [];
+  ? Rest extends [infer Single] ? Single | [Single] : Rest 
+  : [];
+
+export type Extractable<T extends QueryKey> = TVariableFn<T[0]> | T[0];
 
 export type TVariablesOrFnArray<T extends QueryKey> = {
   [K in keyof T]: T[K] | TVariableFn<T[K]>
