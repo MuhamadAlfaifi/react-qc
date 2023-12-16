@@ -21,3 +21,18 @@ export function s(strings: TemplateStringsArray, ...keys: string[]) {
     return interlace(strings, values).join('');
   };
 }
+
+export function dangerouslyFetchNextPage(infiniteQuery: any, length: number) {
+  if (length < 0 || typeof length !== 'number') {
+    throw new Error('length must be a positive number');
+  }
+
+  const { status, isFetchingNextPage, hasNextPage, data, fetchNextPage } = infiniteQuery;
+  const currentLength = data?.pages?.length ?? 0;
+
+  if (status === 'success' && !isFetchingNextPage && hasNextPage && currentLength < length) {
+    fetchNextPage({
+      cancelRefetch: false,
+    });
+  }
+}
