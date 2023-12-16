@@ -22,15 +22,18 @@ export function s(strings: TemplateStringsArray, ...keys: string[]) {
   };
 }
 
-export function dangerouslyFetchNextPage(infiniteQuery: any, length: number) {
+export function dangerouslyFetchNextPage(results: any, predicate: boolean | ((results: any) => boolean)) {
   if (length < 0 || typeof length !== 'number') {
     throw new Error('length must be a positive number');
   }
 
-  const { status, isFetchingNextPage, hasNextPage, data, fetchNextPage } = infiniteQuery;
-  const currentLength = data?.pages?.length ?? 0;
+  if ('fetchNextPage' in results === false) {
+    throw new Error('results must be a useInfiniteQuery result');
+  }
 
-  if (status === 'success' && !isFetchingNextPage && hasNextPage && currentLength < length) {
+  const { status, isFetchingNextPage, hasNextPage, fetchNextPage } = results;
+
+  if (status === 'success' && !isFetchingNextPage && hasNextPage && (typeof predicate === 'function' ? predicate(results) : predicate)) {
     fetchNextPage({
       cancelRefetch: false,
     });

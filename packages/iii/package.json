@@ -1,6 +1,6 @@
 {
   "name": "react-qc-iii",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Lightweight react-query wrapper that provides error/loading, and more...",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages",
