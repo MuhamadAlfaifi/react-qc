@@ -1,24 +1,33 @@
 # Welcome to react-qc 👋
 
-Lightweight @tanstack/react-query wrapper that provides error/loading, and more...
+Lightweight @tanstack/react-query wrapper that makes hooks reusable, provides error/loading, and more...
 
 [![Version](https://img.shields.io/npm/v/react-qc.svg)](https://www.npmjs.com/package/react-qc)
 [![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](#table-of-contents)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/MuhamadAlfaifi/react-qc/graphs/commit-activity)
 
 ```javascript
-const Get = wrapUseQuery<[string, Record<string, any> | undefined]>({
+const Get = wrapUseQuery<[string, Record<string, any>] | [string]>({
   // no need to define queryKey now!
   queryFn: async ({ signal, queryKey: [path, search = {}] }) => {
     ...
   }
 });
 
-type TName = { title: string, first: string, last: string }
+type TName = { 
+  title: string, 
+  first: string, 
+  last: string,
+}
 
-type Response = { results: { name: TName, ... }[] }
+type Response = { 
+  results: { 
+    name: TName, 
+    ... 
+  }[] 
+}
 
-const names = (data: Response) => data.results.map((item) => item.name) || [];
+const names = (data: Response) => data.results.map((item) => item.name);
 
 // regular usage info.data is TName[] | undefined
 const info = Get.use(['https://randomuser.me/api', { results: 10 }], { select: names });
@@ -28,20 +37,14 @@ const info = Get.use(['https://randomuser.me/api', { results: 10 }], { select: n
   <Get path="https://randomuser.me/api" variables={{ results: 10 }} loading={<p>loading...</p>} select={names}>
     {(data) => ( // data is TName[]
       <ul>
-        {data.map(name => 
-          <li key={name}>{name.first} - {name.last}</li>
+        {data.map((name, id) => 
+          <li key={id}>{name.first} - {name.last}</li>
         )}
       </ul>
     )}
   </Get>
 </Catch>
 ```
-
-## Features
-- abstracts query key creation with callbacks
-- optional keyFn for custom query key creation
-- optional syntactic sugar path, body props for variables[0] and variables[1]
-- wrapped hook has error/loading elements via error/loading props
 
 
 # Table of Contents
@@ -597,3 +600,7 @@ function MyComponent() {
   );
 }
 ```
+
+# Extra: how to disable default error/loading behavior?
+
+use props like these `hasLoading={false} throwOnError={false} useErrorBoundary={false}` to disable default error/loading behavior
