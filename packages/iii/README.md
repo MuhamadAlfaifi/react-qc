@@ -9,8 +9,14 @@ Lightweight @tanstack/react-query wrapper that makes hooks reusable, provides er
 ```javascript
 const Get = wrapUseQuery<[string, Record<string, any>] | [string]>({
   // no need to define queryKey now!
-  queryFn: async ({ signal, queryKey: [path, search = {}] }) => {
-    ...
+  queryFn: async ({ queryKey: [path, search] }) => {
+    const url = [path];
+
+    search && url.push(
+      new URLSearchParams(Object.entries(search)).toString()
+    );
+
+    return await fetch(url.join('?')).then((res) => res.json());
   }
 });
 
@@ -115,8 +121,8 @@ import { wrapUseQuery } from 'react-qc-iv';
 
 export const Get = wrapUseQuery({
   queryKey: ['users'],
-  queryFn: async ({ signal }) => {
-    return await fetch('https://randomuser.me/api', { signal }).then((res) => res.json());
+  queryFn: async () => {
+    return await fetch('https://randomuser.me/api').then((res) => res.json());
   }
 });
 ```
@@ -225,10 +231,10 @@ import { wrapUseQuery } from 'react-qc-iv';
 import { useQuery } from '@tanstack/react-query';
 
 export const Get = wrapUseQuery<[string, Record<string, any> | undefined]>({
-  queryFn: async ({ signal, queryKey: [path, search = {}] }) => {
+  queryFn: async ({ queryKey: [path, search = {}] }) => {
     const searchParams = new URLSearchParams(Object.entries(search));
 
-    return await fetch(path + '?' + searchParams.toString(), { signal }).then((res) => res.json());
+    return await fetch(path + '?' + searchParams.toString()).then((res) => res.json());
   }
 });
 
@@ -339,7 +345,7 @@ function MyComponent() {
 import { wrapUseInfiniteQuery } from 'react-qc-iv';
 
 export const Paginate = wrapUseInfiniteQuery<[string, Record<string, any>]>({
-  queryFn: async ({ signal, queryKey: [url, parameters], pageParam, meta: { initialPageParam = 0 } = {} }) => {
+  queryFn: async ({ queryKey: [url, parameters], pageParam, meta: { initialPageParam = 0 } = {} }) => {
     const search = new URLSearchParams();
 
     for (const key in parameters) {
@@ -350,7 +356,7 @@ export const Paginate = wrapUseInfiniteQuery<[string, Record<string, any>]>({
 
     search.set('page', page);
 
-    return await fetch(url + '?' + search.toString(), { signal }).then((res) => res.json());
+    return await fetch(url + '?' + search.toString()).then((res) => res.json());
   },
   getNextPageParam: (lastPage) => lastPage.info.page + 1,
 });
@@ -510,7 +516,7 @@ const customKeyFn: TKeyFn = (variables, extensions) => {
 }
 
 export const Get = wrapUseQueryWithExtensions<[string, Record<string, any>]>({
-  queryFn: async ({ signal, queryKey: [url, { body, params, searchParams }] }) => {
+  queryFn: async ({ queryKey: [url, { body, params, searchParams }] }) => {
     ...
   },
 }, customKeyFn);
