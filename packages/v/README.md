@@ -53,27 +53,33 @@ const info = Get.use(['https://randomuser.me/api', { results: 10 }], { select: n
 
 
 # Table of Contents
-
-- [Installation for @tanstack/react-query v5](#installation-for-tanstackreact-query-v5)
-- [Installation for @tanstack/react-query v4](#installation-for-tanstackreact-query-v4)
-- [Installation for react-query v3](#installation-for-react-query-v3)
-- [Define new query](#define-new-query)
-- [Use the query](#use-the-query)
-- [Set custom loading/error](#set-custom-loadingerror)
-- [Add provider for default loading/error](#add-provider-for-default-loadingerror)
-- [Add retry button](#add-retry-button)
-- [Define custom variables](#define-custom-variables)
-- [Pass variables](#pass-variables)
-- [Optional: Syntactic sugar](#optional-syntactic-sugar)
-- [Custom data function](#custom-data-function)
-- [Pagination](#pagination)
-- [Use infinite query](#use-infinite-query)
-- [Use infinite query with custom data function](#use-infinite-query-with-custom-data-function)
-- [Advanced: add extensions](#advanced-add-extensions)
-- [Advanced: use extensions with default keyFn](#advanced-use-extensions-with-default-keyfn)
-- [Advanced: use extensions with custom keyFn](#advanced-use-extensions-with-custom-keyfn)
-- [Extra: default key fn](#extra-default-key-fn)
-- [Extra: default error/loading apply only to first page](#extra-by-default-errorloading-apply-only-to-first-page)
+- Installation
+  - [Installation for @tanstack/react-query v5](#installation-for-tanstackreact-query-v5)
+  - [Installation for @tanstack/react-query v4](#installation-for-tanstackreact-query-v4)
+  - [Installation for react-query v3](#installation-for-react-query-v3)
+- API Reference
+- Tutorial
+  - [Define new query](#define-new-query)
+  - [Use the query](#use-the-query)
+  - [Set custom loading/error](#set-custom-loadingerror)
+  - [Add provider for default loading/error](#add-provider-for-default-loadingerror)
+  - [Add retry button](#add-retry-button)
+  - [Define custom variables](#define-custom-variables)
+  - [Pass variables](#pass-variables)
+  - [Optional: Syntactic sugar](#optional-syntactic-sugar)
+  - [Custom data function](#custom-data-function)
+  - [Pagination](#pagination)
+  - [Use infinite query](#use-infinite-query)
+  - [Use infinite query with custom data function](#use-infinite-query-with-custom-data-function)
+  - [Advanced: add extensions](#advanced-add-extensions)
+  - [Advanced: use extensions with default keyFn](#advanced-use-extensions-with-default-keyfn)
+  - [Advanced: use extensions with custom keyFn](#advanced-use-extensions-with-custom-keyfn)
+- Extra
+  - [Extra: default key fn](#extra-default-key-fn)
+  - [Extra: by default error/loading apply only to first page](#extra-by-default-errorloading-apply-only-to-first-page)
+  - [Extra: how to pass react query options?](#extra-how-to-pass-react-query-options)
+  - [Extra: how to disable default error/loading behavior?](#extra-how-to-disable-default-errorloading-behavior)
+- License
 
 
 # Installation for @tanstack/react-query v5
@@ -111,6 +117,49 @@ npm install react-qc-iii
 - react: ^16.8.0 || ^17 || ^18
 - react-dom: ^16.8.0 || ^17 || ^18
 - react-query: v3
+
+# API Reference
+
+- QcProvider
+  - Props
+    - loading (optional) - default loading component
+    - error (optional) - default error component
+- QcExtensionsProvider
+  - Props
+    - extensions (required) - extensions or hook that returns extensions
+- wrapUseQuery
+  - Parameters
+    - options (required) - useQuery options
+    - keyFn (optional) - custom keyFn
+  - Returns
+    - Component - enhanced useQuery component
+- wrapUseInfiniteQuery
+  - Parameters
+    - options (required) - useInfiniteQuery options
+    - keyFn (optional) - custom keyFn
+  - Returns
+    - Component - enhanced useInfiniteQuery component
+- wrapUseQueryWithExtensions
+  - Parameters
+    - options (required) - useQuery options
+    - keyFn (optional) - custom keyFn
+  - Returns
+    - Component - enhanced useQuery component
+- wrapUseInfiniteQueryWithExtensions
+  - Parameters
+    - options (required) - useInfiniteQuery options
+    - keyFn (optional) - custom keyFn
+  - Returns
+    - Component - enhanced useInfiniteQuery component
+- Catch
+  - Props
+    - error (optional) - custom error component or null
+- s
+  - Parameters
+    - strings (required) - template literal strings
+    - values (optional) - template literal values
+  - Returns
+    - string - string with substituted values from extensions.searchParams
 
 
 # Define new query
@@ -609,3 +658,7 @@ function MyComponent() {
 # Extra: how to disable default error/loading behavior?
 
 use props like these `hasLoading={false} throwOnError={false} useErrorBoundary={false}` to disable default error/loading behavior
+
+
+# License
+MIT
