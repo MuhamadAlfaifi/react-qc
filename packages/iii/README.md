@@ -2,7 +2,6 @@
 
 Lightweight @tanstack/react-query wrapper that makes hooks reusable, provides error/loading, and more...
 
-[![Version](https://img.shields.io/npm/v/react-qc.svg)](https://www.npmjs.com/package/react-qc)
 [![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg)](#table-of-contents)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/MuhamadAlfaifi/react-qc/graphs/commit-activity)
 
@@ -35,10 +34,10 @@ type Response = {
 
 const names = (data: Response) => data.results.map((item) => item.name);
 
-// regular usage info.data is TName[] | undefined
+// reusable hook Get.use(): info.data is TName[] | undefined
 const info = Get.use(['https://randomuser.me/api', { results: 10 }], { select: names });
 
-// regular usage with loading/error elements
+// reusable component <Get />: data is TName[]
 <Catch error={<p>an error occured!</p>}>
   <Get path="https://randomuser.me/api" variables={{ results: 10 }} loading={<p>loading...</p>} select={names}>
     {(data) => ( // data is TName[]
