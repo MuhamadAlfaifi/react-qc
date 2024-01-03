@@ -4,16 +4,16 @@ import { TCatchProps } from './types';
 import { useQcDefaults } from './qc-provider';
 import { errorRender } from './utils';
 
-export function Catch({ error, children }: TCatchProps) {
+export function Catch(props: TCatchProps) {
   const { error: defaultError } = useQcDefaults();
 
-  const fallbackRender = errorRender(error || defaultError);
+  const fallbackRender = errorRender('error' in props ? props.error : defaultError);
 
   return (
     <QueryErrorResetBoundary>
       {({ reset }: any) => (
         <ErrorBoundary onReset={reset} fallbackRender={fallbackRender}>
-          {children}
+          {props.children}
         </ErrorBoundary>
       )}
     </QueryErrorResetBoundary>
