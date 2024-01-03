@@ -1,4 +1,4 @@
-export function wrapTests({ 
+export function featuresTests({ 
   wrapUseInfiniteQuery, wrapUseInfiniteQueryWithExtensions, wrapUseQuery, wrapUseQueryWithExtensions,
   QcProvider, useQcDefaults, QcExtensionsProvider,
   useParams, useSearchParams,

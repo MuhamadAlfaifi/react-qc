@@ -4,9 +4,9 @@ import { QcProvider, useQcDefaults, QcExtensionsProvider } from '../src/common/i
 import React from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { wrapUseInfiniteQuery, wrapUseInfiniteQueryWithExtensions, wrapUseQuery, wrapUseQueryWithExtensions } from '../src/wrap';
-import { wrapTests } from '../../common/tests/wrap-tests';
+import { featuresTests } from '../../common/tests/features-tests';
 
-wrapTests({ 
+featuresTests({ 
   wrapUseInfiniteQuery, wrapUseInfiniteQueryWithExtensions, wrapUseQuery, wrapUseQueryWithExtensions,
   QcProvider, useQcDefaults, QcExtensionsProvider,
   useParams, useSearchParams,
