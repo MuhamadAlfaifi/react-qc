@@ -37,8 +37,8 @@
     "test": "vitest --run"
   },
   "dependencies": {
-    "common": "workspace:*",
     "@tanstack/react-query": "^4.0.0",
+    "common": "workspace:*",
     "react": "^16.8.0 || ^17 || ^18",
     "react-dom": "^16.8.0 || ^17 || ^18",
     "react-error-boundary": "^4.0.11"

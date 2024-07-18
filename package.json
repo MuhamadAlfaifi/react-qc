@@ -1,5 +1,9 @@
 {
+	"scripts": {
+		"preversion": "npx lerna exec cp ../../README.md ./README.md && git add ."
+	},
 	"devDependencies": {
-		"lerna": "^8.1.6"
+		"lerna": "^8.1.6",
+		"nx": "^19.5.1"
 	}
 }
