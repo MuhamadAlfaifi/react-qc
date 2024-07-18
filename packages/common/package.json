@@ -1,7 +1,7 @@
 {
   "name": "common",
   "private": true,
-  "version": "1.5.6",
+  "version": "1.5.7",
   "description": "react-qc wraps useQuery/useInfiniteQuery hooks and give you a component with loading, error, and queryKey creation flexibility.",
   "author": "Muhamad Alfaifi (muhamad.alfaifi@gmail.com)",
   "homepage": "https://github.com/MuhamadAlfaifi/react-qc/tree/main/packages",

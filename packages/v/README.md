@@ -162,7 +162,7 @@ npm install react-qc-iii
     - string - string with substituted values from extensions.searchParams
 
 
-# Define new query
+# Define your own query
 
 ```tsx
 import { wrapUseQuery } from 'react-qc-iv';
